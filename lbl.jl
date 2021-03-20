@@ -24,10 +24,10 @@ end
 
 """
 """
-function inv_E(E::AbstractMatrix{T}, s::Int) where T
+function inv_E(E::Union{AbstractMatrix{T}, Array{T}, Float64}, s::Int) where T
 
     if s==1
-        return 1/E
+        return 1/E[1,1]
     elseif s==2
         
         # Swap diagonal-element
@@ -46,7 +46,7 @@ end
 
 
 """
-PAP^T = [E C^* ; C B]
+PAP^T = [E C^* ; C K]
 
 LBL^* Factorization based on 
 """
@@ -73,11 +73,16 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
 
         # Pivoting
         pivot, pivot_size = pivoting(hat_A, strategy) 
-        print(pivot, pivot_size)
 
         # Special case for E and L : skip, no permutation matrix required A = [E C^* ; C B]
         if pivot_size == 0 
             E = hat_A[1,1]
+            C = hat_A[2:end, 1]
+            K = hat_A[2:end, 2:end]
+            display(hat_A)
+            display(E)
+            display(C)
+            display(K)
             L_special_case = vcat(1, zeros(hat_n-1)) #Special case on L
 
         else
@@ -105,13 +110,18 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
                     P[idx1, :] = P[idx2, :]
                     P[idx2, :] = temp
                 end
+
+               
             end
 
             # With permutation get bloc-matrices from PAP^T = [E C^* ; C B]
             E = hat_A[1:pivot_size, 1:pivot_size]
             C = hat_A[(pivot_size+1):end, 1:pivot_size]
-            B = hat_A[(pivot_size+1):end, (pivot_size):end]
+            K = hat_A[(pivot_size+1):end, (pivot_size+1):end]
+           
         end
+
+        
 
         # Construction of columns of L and B matrices
         E⁻¹ = inv_E(E, pivot_size)
@@ -120,19 +130,21 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
         # Special case, where s=1 and no permutation was required
         if pivot_size==0
             B[s,s] = E
-            L[(n_hat+1):end,s] = L_special_case   # TODO : verify if L[n_hat:end,s] = L_special_case instead
+            L[(n-hat_n+1):end:end,s] = L_special_case   # TODO : verify if L[n_hat:end,s] = L_special_case instead
         else
             # If pivot_size=1, then s+pivot_size-1 = s      =>     s:(s+pivot_size-1) == s:s
             # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
             
             B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
-            L[(n_hat+1):end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
+            L[(n-hat_n+1):end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
         end
          
 
         # Schur complement
-        hat_A = B - C*E⁻¹*C'
-
+        if hat_n > 1
+            hat_A = Hermitian(K - C*E⁻¹*C')
+        end
+        
 
         # Incremental step depends on the size of pivoting
         if pivot_size==1 || pivot_size==0
@@ -149,4 +161,19 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
 end
 
 
+# Test
+using Test
+@testset begin
 
+
+    for i = 1 : 5
+        for n = 4 : 10
+            A = rand(n,n)
+            A = Hermitian(A)
+            L,B = lbl(A, strategy="bparlett")
+
+            @test norm(A - L*B*L') ≤ 1.0e-5 * norm(A)
+        end
+    end
+
+end

@@ -30,6 +30,8 @@ function bparlett(A::Hermitian{T}) where T
             # Max between all elements
             if(v > μ_0) 
                 μ_0 = A[i,j]
+                p = i
+                q = j
             end
         end
         
