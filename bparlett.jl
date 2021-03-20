@@ -10,17 +10,10 @@ function bparlett(A::Hermitian{T}) where T
     α=(1+sqrt(17))/8
     n=size(A,1)
 
-    #μ_1=max |a_ij|
-
     μ_0 = 0
     μ_1 = 0
 
-    μ_1_r = 0
-
-    μ_0_p = 0
-    μ_0_q = 0
-
-    pivot = tuple()
+    pivot = []
     pivot_size = 0
 
     for j in 1:n
@@ -28,27 +21,31 @@ function bparlett(A::Hermitian{T}) where T
 
             v = abs(A[i,j])
 
-            #Max dans la diagonale
-            if (i==j)
-                if(v>μ_1)
+            # Max on the diagonal : μ_1 = max |a_ij|
+            if (i == j)
+                if(v > μ_1)
                     μ_1 = A[i,j]
-                    μ_1_r = i
+                    r = i
                 end
             end
-            #Max de tous les éléments
-            if(v>μ_0) 
+            # Max between all elements
+            if(v > μ_0) 
                 μ_0 = A[i,j]
-                μ_0_p = i
-                μ_0_q = j
             end
         end
         
+
+        # Pivoting between 1 and r (line and column)
         if (μ_1 >= α*μ_0)
             pivot_size = 1
-            pivot = (μ_1_r,0)
+            append!(pivot, (1,r))
+
+        # 1) Pivoting between 1 and p (line and column)
+        # 2) Pivoting between 2 and q (line and column)
         else
             pivot_size = 2
-            pivot = (μ_0_p,μ_0_q)            
+            append!(pivot, (1,p))
+            append!(pivot, (2,q))          
         end
 
     end
