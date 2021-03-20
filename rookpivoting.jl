@@ -25,7 +25,7 @@ function rook(A::Hermitian{T}) where T
     # The pivot is a_11 (no pivoting)
     if a_11 >= α*ω_i
         pivot_size = 1
-        append!(pivot, (1,1))
+        push!(pivot, (1,1))
     else
 
         i = 1
@@ -37,15 +37,15 @@ function rook(A::Hermitian{T}) where T
             # Pivoting between 1 and r (line and column)
             if abs(A[r,r]) >= α*ω_r 
                 pivot_size = 1
-                append!(pivot, (1,r))
+                push!(pivot, (1,r))
                 
             # 1) Pivoting between 1 and i (line and column)
             # 2) Pivoting between 2 and r (line and column)
             elseif ω_i == ω_r
 
                 pivot_size = 2
-                append!(pivot, (1,i))
-                append!(pivot, (2,r))
+                push!(pivot, (1,i))
+                push!(pivot, (2,r))
             
             # Rook-displacement at r
             else

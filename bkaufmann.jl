@@ -23,7 +23,7 @@ function bkaufmann(A::Hermitian{T}) where T
     # The pivot is a_11 (no pivoting)
     if a_11 >= α*ω_1
         pivot_size = 1
-        append!(pivot, (1,1))
+        push!(pivot, (1,1))
         
     else
         # SECOND SEARCH
@@ -32,17 +32,17 @@ function bkaufmann(A::Hermitian{T}) where T
         # The pivot is a_11 (no pivoting)
         if (a_11*ω_r >= α*ω_1^2) 
             pivot_size = 1
-            append!(pivot, (1,1))
+            push!(pivot, (1,1))
 
         # The pivot is a_rr 
         elseif abs(A[r,r]) >= α*ω_r
             pivot_size = 1
-            append!(pivot, (1,r))
+            push!(pivot, (1,r))
 
         # Pivoting between 2 and r (line and column)
         else
             pivot_size = 2
-            append!(pivot, (2,r))
+            push!(pivot, (2,r))
         end
     end
 

@@ -37,14 +37,14 @@ function bparlett(A::Hermitian{T}) where T
         # Pivoting between 1 and r (line and column)
         if (μ_1 >= α*μ_0)
             pivot_size = 1
-            append!(pivot, (1,r))
+            push!(pivot, (1,r))
 
         # 1) Pivoting between 1 and p (line and column)
         # 2) Pivoting between 2 and q (line and column)
         else
             pivot_size = 2
-            append!(pivot, (1,p))
-            append!(pivot, (2,q))          
+            push!(pivot, (1,p))
+            push!(pivot, (2,q))          
         end
 
     end

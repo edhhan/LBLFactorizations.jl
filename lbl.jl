@@ -50,17 +50,18 @@ PAP^T = [E C^* ; C B]
 
 LBL^* Factorization based on 
 """
-function lbl(A::Hermitian{T} ; strategy::String="rook") where T
+function lbl(A::Hermitian{T}; strategy::String="rook") where T
 
     if !(strategy in ["rook", "bparlett", "bkaufmann"])
         @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
     end
 
     # Initialize matrix
-    hat_A = deecopy(A)
-    n = size(A)
-    L = zeros(n,n)
-    B = zeros(n,n)
+    hat_A = deepcopy(A)
+
+    n = size(A)[1]
+    L = zeros(n, n)
+    B = zeros(n, n)
 
 
     # Initialize loop variable : undefinite number of iteration
@@ -72,6 +73,7 @@ function lbl(A::Hermitian{T} ; strategy::String="rook") where T
 
         # Pivoting
         pivot, pivot_size = pivoting(hat_A, strategy) 
+        print(pivot, pivot_size)
 
         # Special case for E and L : skip, no permutation matrix required A = [E C^* ; C B]
         if pivot_size == 0 
@@ -88,6 +90,8 @@ function lbl(A::Hermitian{T} ; strategy::String="rook") where T
 
                 # p is a tuple of two indices and pivot is an array of 1 or 2 tuples p
                 for p in pivot
+
+                   
                     idx1 = p[1]
                     idx2 = p[2]
 
@@ -110,8 +114,9 @@ function lbl(A::Hermitian{T} ; strategy::String="rook") where T
         end
 
         # Construction of columns of L and B matrices
+        E⁻¹ = inv_E(E, pivot_size)
         
-        
+
         # Special case, where s=1 and no permutation was required
         if pivot_size==0
             B[s,s] = E
@@ -121,9 +126,13 @@ function lbl(A::Hermitian{T} ; strategy::String="rook") where T
             # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
             
             B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
-            L[(n_hat+1):end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*inv_E(E, pivot_size) )
+            L[(n_hat+1):end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
         end
          
+
+        # Schur complement
+        hat_A = B - C*E⁻¹*C'
+
 
         # Incremental step depends on the size of pivoting
         if pivot_size==1 || pivot_size==0
