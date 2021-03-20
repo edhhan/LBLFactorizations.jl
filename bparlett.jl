@@ -1,8 +1,7 @@
 using LinearAlgebra
 include("max_subdiagonal.jl")
 
-
-function bparlett(A::Symmetric)
+function bparlett(A::Hermitian{T}) where T
 
     α=(1+sqrt(17))/8
 

@@ -1,7 +1,7 @@
 using LinearAlgebra
 include("max_subdiagonal.jl")
 
-function brook(A::Symmetric)
+function brook(A::Hermitian{T}) where T
 
          
     α=(1+sqrt(17))/8

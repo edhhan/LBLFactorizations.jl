@@ -1,7 +1,7 @@
 using LinearAlgebra
 include("max_subdiagonal.jl")
 
-function bkaufmann(A::Symmetric)
+function bkaufmann(A::Hermitian{T}) where T
 
     α=(1+sqrt(17))/8
 
