@@ -64,16 +64,26 @@ function lbl(A::Hermitian{T} ; strategy::String="rook") where T
 
     while s < n
 
-        # Construct permutation matrix
+        # Pivoting
         pivot, pivot_size = pivoting(A, strategy) 
-        permutation_matrix = Matrix(1.0*I, n,n)
 
-        # Special case : skip
-        if p == 0 
+        # Special case : skip, no permutation matrix required
+        if pivot == 0 
             # TODO
         else
-            for p in pivot
-                temp = permutation_matrix[:,p]
+
+            # Construct permutation matrix
+            permutation_matrix = Matrix(1.0*I, n,n)
+
+            # Permutation matrix is identity
+            if pivot == [(1,1)]
+                continue
+
+            # Permutation on columns and lines are required
+            else
+                for p in pivot
+                    temp = permutation_matrix[:,p]
+                end
             end
         end
 
