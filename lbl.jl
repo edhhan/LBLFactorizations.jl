@@ -6,7 +6,7 @@ using LinearAlgebra
 
 
 """
-Wrapper function 
+Wrapper function for pivoting strategy
 """
 function pivoting(A::Hermitian{T}, strategy::String) where T
 
@@ -24,7 +24,7 @@ end
 
 """
 """
-function inv_E(E::AbstractMatrix, s::Int)
+function inv_E(E::AbstractMatrix{T}, s::Int) where T
 
     if s==1
         return 1/E
@@ -46,6 +46,8 @@ end
 
 
 """
+PAP^T = [E C^* ; C B]
+
 LBL^* Factorization based on 
 """
 function lbl(A::Hermitian{T} ; strategy::String="rook") where T
@@ -55,45 +57,82 @@ function lbl(A::Hermitian{T} ; strategy::String="rook") where T
     end
 
     # Initialize matrix
-    m,n = size(A)
+    hat_A = deecopy(A)
+    n = size(A)
     L = zeros(n,n)
     B = zeros(n,n)
 
-    # Initialize loop variable : undefinite number of iteration
-    s = 0
 
-    while s < n
+    # Initialize loop variable : undefinite number of iteration
+    s = 1
+
+    while s <= n # s<n ?
+
+        hat_n = size(hat_A)[1]
 
         # Pivoting
-        pivot, pivot_size = pivoting(A, strategy) 
+        pivot, pivot_size = pivoting(hat_A, strategy) 
 
-        # Special case : skip, no permutation matrix required
-        if pivot == 0 
-            # TODO
+        # Special case for E and L : skip, no permutation matrix required A = [E C^* ; C B]
+        if pivot_size == 0 
+            E = hat_A[1,1]
+            L_special_case = vcat(1, zeros(hat_n-1)) #Special case on L
+
         else
 
-            # Construct permutation matrix
-            permutation_matrix = Matrix(1.0*I, n,n)
+            # If pivot==[(1,1)] then permutation matrix is identity, so we skip that case A = [E C^* ; C B]
+            if !(pivot == [(1,1)])
 
-            # Permutation matrix is identity
-            if pivot == [(1,1)]
-                continue
+                # Construct permutation matrix P
+                P = Matrix(1.0*I, hat_n, hat_n)
 
-            # Permutation on columns and lines are required
-            else
+                # p is a tuple of two indices and pivot is an array of 1 or 2 tuples p
                 for p in pivot
-                    temp = permutation_matrix[:,p]
+                    idx1 = p[1]
+                    idx2 = p[2]
+
+                    # Permutation on columns
+                    temp = P[:,idx1]
+                    P[:, idx1] = P[:, idx2]
+                    P[:, idx2] = temp
+
+                    # Permuation on lines
+                    temp = P[idx1, :]
+                    P[idx1, :] = P[idx2, :]
+                    P[idx2, :] = temp
                 end
             end
+
+            # With permutation get bloc-matrices from PAP^T = [E C^* ; C B]
+            E = hat_A[1:pivot_size, 1:pivot_size]
+            C = hat_A[(pivot_size+1):end, 1:pivot_size]
+            B = hat_A[(pivot_size+1):end, (pivot_size):end]
         end
 
+        # Construction of columns of L and B matrices
+        
+        
+        # Special case, where s=1 and no permutation was required
+        if pivot_size==0
+            B[s,s] = E
+            L[(n_hat+1):end,s] = L_special_case   # TODO : verify if L[n_hat:end,s] = L_special_case instead
+        else
+            # If pivot_size=1, then s+pivot_size-1 = s      =>     s:(s+pivot_size-1) == s:s
+            # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
+            
+            B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
+            L[(n_hat+1):end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*inv_E(E, pivot_size) )
+        end
+         
 
         # Incremental step depends on the size of pivoting
-        if pivot_size==1
+        if pivot_size==1 || pivot_size==0
             s += 1
         elseif pivot_size==2
             s += 2
         end
+
+
     end
 
 

@@ -5,8 +5,7 @@ include("max_subdiagonal.jl")
 Rook pivoting strategy
 """
 function rook(A::Hermitian{T}) where T
-
-         
+    
     α = (1+sqrt(17))/8
     n = size(A,1)
     pivot = []

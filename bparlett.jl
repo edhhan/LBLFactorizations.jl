@@ -1,7 +1,6 @@
 using LinearAlgebra
 include("max_subdiagonal.jl")
 
-
 """
 Complete pivoting strategy
 """
