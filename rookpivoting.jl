@@ -1,25 +1,27 @@
 using LinearAlgebra
 include("max_subdiagonal.jl")
 
-function brook(A::Hermitian{T}) where T
+"""
+Rook pivoting strategy
+"""
+function rook(A::Hermitian{T}) where T
 
          
-    α=(1+sqrt(17))/8
-
-    n=size(A,1)
+    α = (1+sqrt(17))/8
+    n = size(A,1)
 
     #μ_1=max |a_ij|
 
-    ω_i=0
-    ω_r=0
+    ω_i = 0
+    ω_r = 0
 
-    pivot=tuple(0,0)
-    pivot_size=0
+    pivot = tuple(0,0)
+    pivot_size = 0
 
     #Looks for the largest absolute value in the subdiagonal element of column 1
     ω_i, r = max_subdiagonal(A, 1)
 
-        a_11=abs(A[1,1])
+        a_11 = abs(A[1,1])
         
         if (ω_i == 0)
             pivot = (0,0)
@@ -27,9 +29,9 @@ function brook(A::Hermitian{T}) where T
 
         elseif a_11 >= α*ω_i
   
-            pivot_size=1
+            pivot_size = 1
             #The pivot is a_11 is first element of the tuple pivot
-            pivot=(1,0)
+            pivot = (1,0)
             
         else
             i = 1
@@ -57,7 +59,6 @@ function brook(A::Hermitian{T}) where T
                 ω_i = ω_r
 
                end
-
 
             end
 
