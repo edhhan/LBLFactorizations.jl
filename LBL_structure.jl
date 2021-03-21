@@ -24,6 +24,6 @@ end
 
 """
 """
-function push_pivot!(A::LBL{T}, pivot::Union{ AbstractArray{Tuple{Int64, Int64}}, Int64 }) where T
+function push_pivot!(A::LBL{T}, pivot::Union{Array{Any,1}, Array{Tuple{Int64, Int64}, 1}, Int64 }) where T
     push!(A.pivot_array, pivot)
 end
