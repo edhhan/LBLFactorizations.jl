@@ -113,9 +113,11 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
                     P[idx1, :] = P[idx2, :]
                     P[idx2, :] = temp
                 end
-
+                hat_A = P*hat_A*P'
                
             end
+
+            
 
             # With permutation get bloc-matrices from PAP^T = [E C^* ; C B]
             E = hat_A[1:pivot_size, 1:pivot_size]
@@ -164,7 +166,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
 end
 
 
-#=
+
 # Test
 using Test
 @testset begin
@@ -174,26 +176,16 @@ using Test
         for n = [4]
             A = rand(n,n).*100
             A = Hermitian(A)
-            L,B = lbl(A, strategy="bparlett2")
-
-            #display(A)
-            #display(L*B*L')
-            #display(A - L*B*L')
-
-            if !(norm(A - L*B*L') ≤ 1.0e-5 * norm(A))
-                println("here")
-                C = deepcopy(A)
-                display(C)
-            end
+            L,B = lbl(A, strategy="rook")
 
             @test norm(A - L*B*L') ≤ 1.0e-5 * norm(A)
         end
     
     end
 end
-=#
 
 
+#=
 for _ = 1:20
 
     for n = [4]
@@ -211,3 +203,4 @@ for _ = 1:20
     end
 
 end
+=#
