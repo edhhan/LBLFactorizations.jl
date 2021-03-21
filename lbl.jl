@@ -1,5 +1,6 @@
 include("bkaufmann.jl")
 include("bparlett.jl")
+include("bparlett2.jl")
 include("rookpivoting.jl")
 
 using LinearAlgebra
@@ -14,8 +15,10 @@ function pivoting(A::Hermitian{T}, strategy::String) where T
         pivot, pivot_size = rook(A)
     elseif strategy == "bparlett"
         pivot, pivot_size = bparlett(A)
-    elseif stragy == "bkaufmann"
+    elseif strategy == "bkaufmann"
         pivot, pivot_size = bkaufmann(A)
+    elseif strategy == "bparlett2"
+        pivot, pivot_size = bparlett2(A)
     end
 
     return pivot, pivot_size
@@ -52,7 +55,7 @@ LBL^* Factorization based on
 """
 function lbl(A::Hermitian{T}; strategy::String="rook") where T
 
-    if !(strategy in ["rook", "bparlett", "bkaufmann"])
+    if !(strategy in ["rook", "bparlett", "bkaufmann", "bparlett2" ])
         @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
     end
 
@@ -161,18 +164,49 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
 end
 
 
+#=
 # Test
 using Test
 @testset begin
 
-
-    for i = 1 : 5
-        for n = 4 : 10
-            A = rand(n,n)
+    for _ = 1:20
+    
+        for n = [4]
+            A = rand(n,n).*100
             A = Hermitian(A)
-            L,B = lbl(A, strategy="bparlett")
+            L,B = lbl(A, strategy="bparlett2")
+
+            #display(A)
+            #display(L*B*L')
+            #display(A - L*B*L')
+
+            if !(norm(A - L*B*L') ≤ 1.0e-5 * norm(A))
+                println("here")
+                C = deepcopy(A)
+                display(C)
+            end
 
             @test norm(A - L*B*L') ≤ 1.0e-5 * norm(A)
+        end
+    
+    end
+end
+=#
+
+
+for _ = 1:20
+
+    for n = [4]
+        A = rand(n,n).*100
+        A = Hermitian(A)
+        L,B = lbl(A, strategy="bparlett2")
+
+        #display(A)
+        #display(L*B*L')
+        #display(A - L*B*L')
+
+        if !(norm(A - L*B*L') ≤ 1.0e-5 * norm(A))
+            C = deepcopy(A)
         end
     end
 

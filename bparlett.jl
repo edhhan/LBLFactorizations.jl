@@ -6,8 +6,8 @@ Complete pivoting strategy
 """
 function bparlett(A::Hermitian{T}) where T
 
-    α=(1+sqrt(17))/8
-    n=size(A,1)
+    α = (1+sqrt(17))/8
+    n = size(A,1)
 
     μ_0 = 0
     μ_1 = 0
