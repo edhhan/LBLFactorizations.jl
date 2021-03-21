@@ -109,9 +109,9 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
                     P[:, idx2] = temp
 
                     # Permuation on lines
-                    temp = P[idx1, :]
-                    P[idx1, :] = P[idx2, :]
-                    P[idx2, :] = temp
+                    #temp = P[idx1, :]
+                    #P[idx1, :] = P[idx2, :]
+                    #P[idx2, :] = temp
                 end
                 hat_A = P*hat_A*P'
                
@@ -135,13 +135,12 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
         # Special case, where s=1 and no permutation was required
         if pivot_size==0
             B[s,s] = E
-            L[(n-hat_n+1):end:end,s] = L_special_case   # TODO : verify if L[n_hat:end,s] = L_special_case instead
+            L[s:end,s] = L_special_case
         else
             # If pivot_size=1, then s+pivot_size-1 = s      =>     s:(s+pivot_size-1) == s:s
             # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
-            
             B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
-            L[(n-hat_n+1):end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
+            L[s:end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
         end
          
 
@@ -162,7 +161,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
     end
 
 
-    return L,B
+    return LowerTriangular(L),B
 end
 
 
@@ -173,7 +172,7 @@ using Test
 
     for _ = 1:20
     
-        for n = [4]
+        for n = [50]
             A = rand(n,n).*100
             A = Hermitian(A)
             L,B = lbl(A, strategy="rook")
