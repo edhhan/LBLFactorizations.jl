@@ -33,17 +33,7 @@ function inv_E(E::Union{AbstractMatrix{T}, Array{T}, Float64}, s::Int) where T
     if s==1
         return 1/E[1,1]
     elseif s==2
-        
-        # Swap diagonal-element
-        temp = E[1,1]  # element A
-        E[1,1] = E[2,2]
-        E[2,2] = temp
-
-        # Change sign on off diagonal
-        E[1,2] = -E[1,2]
-        E[2,1] = -E[2,1]
-        
-        return 1/det(E) * E
+        return inv(E)
     end
 
 end
@@ -88,7 +78,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
             push_pivot!(F, -1)
             E = hat_A[1,1]
             C = hat_A[2:end, 1]
-            K = hat_A[2:end, 2:end]
+            B = hat_A[2:end, 2:end]
             L_special_case = vcat(1, zeros(hat_n-1)) #Special case on L
 
         else
@@ -122,7 +112,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
             # With permutation get bloc-matrices from PAP^T = [E C^* ; C B]
             E = hat_A[1:pivot_size, 1:pivot_size]
             C = hat_A[(pivot_size+1):end, 1:pivot_size]
-            K = hat_A[(pivot_size+1):end, (pivot_size+1):end]
+            B = hat_A[(pivot_size+1):end, (pivot_size+1):end]
            
         end
 
@@ -132,7 +122,8 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
         # Special case, where s=1 and no permutation was required
         if pivot_size==0
             F.B[s,s] = E
-            F.L[s:end,s] = L_special_case
+            #F.L[s:end,s] = L_special_case
+            F.L[s:end,s] = vcat(Matrix(1.0*I, 1, 1), C*E⁻¹ )
         else
             # If pivot_size=1, then s+pivot_size-1 = s      =>     s:(s+pivot_size-1) == s:s
             # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
@@ -142,7 +133,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
          
         # Schur complement
         if hat_n > 1
-            hat_A = Hermitian(K - C*E⁻¹*C')
+            hat_A = Hermitian(B - C*E⁻¹*C')
         end
         
         # Incremental step depends on the size of pivoting
@@ -163,10 +154,9 @@ using Test
 
     for _ = 1:20
     
-        for n = [2]
+        for n = [4]
             rng = MersenneTwister(1234)
-            A = rand(rng, n,n).*100
-            A = Hermitian(A)
+            A = Hermitian(rand(rng, n,n).*100)
             F = lbl(A, strategy="rook")
 
             @test norm(A - F.L*F.B*F.L') ≤ 1.0e-5 * norm(A)
