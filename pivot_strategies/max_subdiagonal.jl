@@ -1,6 +1,7 @@
 using LinearAlgebra
 
 """
+Utility function for bparlett and rook pivoting strategy
 """
 function max_subdiagonal(A::AbstractMatrix, column_index :: Number)
     #n is the number of rows of matrix A

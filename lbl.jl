@@ -3,8 +3,11 @@ include("pivot_strategies/bparlett.jl")
 include("pivot_strategies/rook.jl")
 include("LBL_structure.jl")
 
+import Base.push!
+
 using LinearAlgebra
 using Random
+
 
 """
 Wrapper function for pivoting strategy
@@ -27,7 +30,7 @@ end
 """
 function inv_E(E::Union{AbstractMatrix{T}, Array{T}, Float64}, s::Int) where T
 
-    if s==1
+    if s==1 || s==0
         return 1/E[1,1]
     elseif s==2
         return inv(E)
@@ -47,7 +50,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
         @error("LBL* factorization only works on hermitian matrices")
     end
 
-    if !(strategy in ["rook", "bparlett", "bkaufmann", "bparlett2" ])
+    if !(strategy in ["rook", "bparlett", "bkaufmann" ])
         @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
     end
 
@@ -119,8 +122,8 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
         # Special case, where s=1 and no permutation was required
         if pivot_size==0
             F.B[s,s] = E
-            #F.L[s:end,s] = L_special_case
-            F.L[s:end,s] = vcat(Matrix(1.0*I, 1, 1), C*E⁻¹ )
+            F.L[s:end,s] = L_special_case
+            #F.L[s:end,s] = vcat(Matrix(1.0*I, 1, 1), C*E⁻¹ )
         else
             # If pivot_size=1, then s+pivot_size-1 = s      =>     s:(s+pivot_size-1) == s:s
             # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
@@ -152,8 +155,7 @@ using Test
     for _ = 1:20
     
         for n = [4]
-            rng = MersenneTwister(1234)
-            A = Hermitian(rand(rng, n,n).*100)
+            A = Hermitian(rand(n,n).*100)
             F = lbl(A, strategy="rook")
 
             @test norm(A - F.L*F.B*F.L') ≤ 1.0e-5 * norm(A)
