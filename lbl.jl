@@ -1,6 +1,5 @@
 include("bkaufmann.jl")
 include("bparlett.jl")
-include("bparlett2.jl")
 include("rookpivoting.jl")
 include("LBL_structure.jl")
 
@@ -18,8 +17,6 @@ function pivoting(A::Hermitian{T}, strategy::String) where T
         pivot, pivot_size = bparlett(A)
     elseif strategy == "bkaufmann"
         pivot, pivot_size = bkaufmann(A)
-    elseif strategy == "bparlett2"
-        pivot, pivot_size = bparlett2(A)
     end
 
     return pivot, pivot_size
