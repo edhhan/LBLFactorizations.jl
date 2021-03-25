@@ -23,7 +23,7 @@ function PermuteMatrix(A,pivot_array)
             k+=1
         end
         s+=k
-        A=P*A*P'
+        return P*A*P'
         
     end
 

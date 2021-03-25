@@ -2,6 +2,7 @@ include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/bparlett.jl")
 include("pivot_strategies/rook.jl")
 include("LBL_structure.jl")
+include("PermuteMatrix.jl")
 
 import Base.push!
 
@@ -47,11 +48,11 @@ LBL^* Factorization based on
 function lbl(A::Hermitian{T}; strategy::String="rook") where T
 
     if !ishermitian(A)
-        @error("LBL* factorization only works on hermitian matrices")
+        return @error("LBL* factorization only works on hermitian matrices")
     end
 
     if !(strategy in ["rook", "bparlett", "bkaufmann" ])
-        @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
+        return @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
     end
 
     # Initialize working matrix
@@ -97,11 +98,19 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
                     idx1 = p[1]
                     idx2 = p[2]
 
+
+                    # Permutations on lines
+                    temp = P[idx1,:]
+                    P[idx1, :] = P[idx2,:]
+                    P[idx2, :] = temp
+
+
                     # Permutation on columns
                     temp = P[:,idx1]
                     P[:, idx1] = P[:, idx2]
                     P[:, idx2] = temp
 
+                    
                 end
 
                 # Apply permuations on working matrix
@@ -152,12 +161,13 @@ end
 using Test
 @testset begin
 
-    for _ = 1:20
+    for _ = 1:2
     
-        for n = [4]
+        for n = 4:10
             A = Hermitian(rand(n,n).*100)
+            
             F = lbl(A, strategy="rook")
-
+            #PAPT = PermuteMatrix(A, F.pivot_array)
             @test norm(A - F.L*F.B*F.L') ≤ 1.0e-5 * norm(A)
         end
     
