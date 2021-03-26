@@ -3,6 +3,8 @@ include("max_subdiagonal.jl")
 
 """
 Complete pivoting strategy
+    μ_0 : max element 
+    μ_1 : max diagonal element 
 """
 function bparlett(A::Hermitian{T}) where T
 

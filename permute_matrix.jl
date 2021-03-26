@@ -1,6 +1,6 @@
 using LinearAlgebra
 
-function PermuteMatrix(A,pivot_array)
+function permute_matrix_lbl(A, pivot_array)
 
     n = length(pivot_array)
     n_A = size(A,1)
