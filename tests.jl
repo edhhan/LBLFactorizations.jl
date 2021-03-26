@@ -1,10 +1,15 @@
 using LinearAlgebra
+using Test
+
+
 include("pivot_strategies/bparlett.jl")
 include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/rook.jl")
+include("permute_matrix.jl")
 include("lbl.jl")
 
 
+######### Pivoting test
 #=
 n = 5
 A = rand(n,n)*1000+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)-500*I
@@ -18,18 +23,27 @@ print(pivots,dimension)
 =#
 
 
-# Test
-
-using Test
+####### Assignement test : works with rook and bkaufmann, fails with bparlett
 #=
+A_assignement =[1 2 3 4 ; 2 5 13 28 ; 3 13 55 131 ; 4 28 131 270]
+A_assignement = Hermitian(A_assignement)
+
+F_bparlett = lbl(A_assignement, strategy="bparlett")
+F_rook = lbl(A_assignement, strategy="rook")
+
+#display(A_assignement)
+#display(F.L*F.B*F.L')
+@test norm(A_assignement - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A_assignement)
+=#
+
+
 @testset begin
 
     for _ = 1:10
     
-        for n = 4:4
+        for n = 4:20
             A = Hermitian(rand(n,n).*100)
-            
-            F = lbl(A, strategy="bparlett")
+            F = lbl(A, strategy="rook")
             
             #@test norm(A - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A)
 
@@ -39,23 +53,12 @@ using Test
     
     end
 end
-=#
 
 
-
-A_assignement =[1 2 3 4 ; 2 5 13 28 ; 3 13 55 131 ; 4 28 131 270]
-A_assignement = Hermitian(A_assignement)
-F = lbl(A_assignement, strategy="bparlett")
-display(A_assignement)
-display(F.L*F.B*F.L')
-
-@test norm(A_assignement - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A_assignement)
-
-
-# Bunch-parlet 
-
+# Bunch-parlet by hand 
 # Itération 1 
 #P1 = [0 0 0 1 ; 0 1 0 0 ; 0 0 1 0 ; 1 0 0 0] #pivot 1 et 4
+#=
 P1 = Matrix(1.0*I,4,4)
 
 hat_A1 = P1*A_assignement*P1
@@ -96,3 +99,4 @@ C3 = hat_A3[(pivot_size+1):end, 1:pivot_size]
 B3 = hat_A3[(pivot_size+1):end, (pivot_size+1):end]
 
 Schur3 = (B3 - C3*1/E3*C3')
+=#

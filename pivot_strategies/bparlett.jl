@@ -1,5 +1,4 @@
 using LinearAlgebra
-include("max_subdiagonal.jl")
 
 """
 Complete pivoting strategy
@@ -14,11 +13,11 @@ function bparlett(A::Hermitian{T}) where T
     pivot = []
     pivot_size = 0
 
-    μ_0 = abs(A[1,1])
+    μ_0 = 0
+    μ_1 = abs(A[1,1])
+
     q = 1
     p = 1
-
-    μ_1 = μ_0
     r = 1
 
     # Find max element in sub-diagonal matrix and max diagonal element
@@ -34,11 +33,12 @@ function bparlett(A::Hermitian{T}) where T
             end
 
             # Max off-diagonal element
-            if (i!= j) && (abs(A[i,j]) > μ_0) 
+            if !(i == j) && ((abs(A[i,j]) >= μ_0))
                 μ_0 = abs(A[i,j])
                 p = i
                 q = j
             end
+
         end
     end
 

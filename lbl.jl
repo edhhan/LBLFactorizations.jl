@@ -60,6 +60,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
 
     # Initiliaze data-structure factorization
     n = size(A)[1]
+
     #F = LBL(LowerTriangular{Float64}(zeros(n,n)), zeros(n, n), strategy)
     F = LBL(zeros(n,n), zeros(n, n), strategy)
 
@@ -93,29 +94,21 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
             P = Matrix(1.0*I, hat_n, hat_n)
             if !(pivot == [(1,1)])
                 
-                # Construct permutation matrix P
-                #P = Matrix(1.0*I, hat_n, hat_n)
-
                 # pivot is an array of 1 or 2 tuples p
                 # p is a tuple of two indices and  
+
+                # TO DO : WATCH ORDER OF PIVOTING IF 2x2 pivoting
                 for p in pivot
                     P = Matrix(1.0*I, hat_n, hat_n)
                     idx1 = p[1]
                     idx2 = p[2]
 
-                    # Permutations on lines : must be done first [1]
-                    temp = P[idx1,:]
-                    P[idx1, :] = P[idx2,:]
-                    P[idx2, :] = temp
-
                     # Permutation on columns
-                    #temp = P[:,idx1]
-                    #P[:, idx1] = P[:, idx2]
-                    #P[:, idx2] = temp
+                    temp = P[:,idx1]
+                    P[:, idx1] = P[:, idx2]
+                    P[:, idx2] = temp
 
-                    #display(P)
-                    hat_A = P*hat_A*P
-
+                    hat_A = (P*hat_A)*P'   # TODO : hat_A = P*hat_A*P' ???
                 end
 
                 # Apply permuations on working matrix
@@ -144,9 +137,9 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
             # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
             
             F.L[s:end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
-
             F.B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
             
+            # TODO : verify where to apply permutations
             #F.L[1:hat_n, 1:hat_n] = P*F.L[1:hat_n, 1:hat_n]*P
             #F.B[1:hat_n, 1:hat_n] = P*F.B[1:hat_n, 1:hat_n]*P'
 
@@ -157,17 +150,12 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
             hat_A = Hermitian(B - C*E⁻¹*C')
         end
         
-        
-
         # Incremental step depends on the size of pivoting
         if pivot_size==1 || pivot_size==0
             s += 1
         elseif pivot_size==2
             s += 2
         end
-
-
-
 
     end
 
