@@ -65,7 +65,7 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
     # Initialize loop variable : undefinite number of iteration
     s = 1
 
-    while s <= n # s<n ?
+    while s <= n 
 
         hat_n = size(hat_A)[1]
 
@@ -86,31 +86,30 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
 
             push_pivot!(F, pivot)
 
-            # If pivot==[(1,1)] then permutation matrix is identity, so we skip that case A = [E C^* ; C B]
+            # If pivot==[(1,1)] then permutation matrix is identity, so we skip that case
+            # We direcetly have hat_A = [E C^* ; C B] without any permutations
             if !(pivot == [(1,1)])
                 
                 # Construct permutation matrix P
                 P = Matrix(1.0*I, hat_n, hat_n)
 
-                # p is a tuple of two indices and pivot is an array of 1 or 2 tuples p
+                # pivot is an array of 1 or 2 tuples p
+                # p is a tuple of two indices and  
                 for p in pivot
 
                     idx1 = p[1]
                     idx2 = p[2]
 
-
-                    # Permutations on lines
+                    # Permutations on lines : must be done first [1]
                     temp = P[idx1,:]
                     P[idx1, :] = P[idx2,:]
                     P[idx2, :] = temp
-
 
                     # Permutation on columns
                     temp = P[:,idx1]
                     P[:, idx1] = P[:, idx2]
                     P[:, idx2] = temp
 
-                    
                 end
 
                 # Apply permuations on working matrix
@@ -158,18 +157,35 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
 end
 
 # Test
+
+#=
 using Test
 @testset begin
 
-    for _ = 1:2
+    for _ = 1:4
     
-        for n = 4:10
+        for n = 4:100
             A = Hermitian(rand(n,n).*100)
             
             F = lbl(A, strategy="rook")
+            @test norm(A - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A)
+
             #PAPT = PermuteMatrix(A, F.pivot_array)
-            @test norm(A - F.L*F.B*F.L') ≤ 1.0e-5 * norm(A)
+            #@test norm(PAPT - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(PAPT)
         end
     
     end
 end
+=#
+
+A_assignement =[1 2 3 4 ; 2 5 13 28 ; 3 13 55 131 ; 4 28 131 270]
+A_assignement = Hermitian(A_assignement)
+F = lbl(A_assignement, strategy="bkaufmann")
+display(F.L)
+display(F.B)
+
+
+
+
+#@test norm(A_assignement - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A)
+

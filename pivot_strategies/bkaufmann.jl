@@ -27,7 +27,7 @@ function bkaufmann(A::Hermitian{T}) where T
         
     else
         # SECOND SEARCH
-        ω_r, r = max_subdiagonal(A, r)
+        ω_r = max_subdiagonal(A, r)[1]
 
         # The pivot is a_11 (no pivoting)
         if (a_11*ω_r >= α*ω_1^2) 
