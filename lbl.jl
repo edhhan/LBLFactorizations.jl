@@ -99,28 +99,28 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
                 # pivot is an array of 1 or 2 tuples p
                 # p is a tuple of two indices and  
                 for p in pivot
-
+                    P = Matrix(1.0*I, hat_n, hat_n)
                     idx1 = p[1]
                     idx2 = p[2]
 
                     # Permutations on lines : must be done first [1]
-                    #temp = P[idx1,:]
-                    #P[idx1, :] = P[idx2,:]
-                    #P[idx2, :] = temp
+                    temp = P[idx1,:]
+                    P[idx1, :] = P[idx2,:]
+                    P[idx2, :] = temp
 
                     # Permutation on columns
-                    temp = P[:,idx1]
-                    P[:, idx1] = P[:, idx2]
-                    P[:, idx2] = temp
+                    #temp = P[:,idx1]
+                    #P[:, idx1] = P[:, idx2]
+                    #P[:, idx2] = temp
 
-                    display(P)
+                    #display(P)
+                    hat_A = P*hat_A*P
 
                 end
 
                 # Apply permuations on working matrix
                 # P*hat_A : permute lines
                 # hat_A*P : permute columns
-                hat_A = P*hat_A*P
                
             end
             
@@ -142,12 +142,12 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
         else
             # If pivot_size=1, then s+pivot_size-1 = s      =>     s:(s+pivot_size-1) == s:s
             # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
-            F.B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
+            
             F.L[s:end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
 
-
-            #F.L[1:hat_n, 1:hat_n] = P'*F.L[1:hat_n, 1:hat_n]*P
-
+            F.B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
+            
+            #F.L[1:hat_n, 1:hat_n] = P*F.L[1:hat_n, 1:hat_n]*P
             #F.B[1:hat_n, 1:hat_n] = P*F.B[1:hat_n, 1:hat_n]*P'
 
         end

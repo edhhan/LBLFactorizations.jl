@@ -3,7 +3,7 @@ include("max_subdiagonal.jl")
 
 """
 Complete pivoting strategy
-    μ_0 : max element 
+    μ_0 : max of diagonal element 
     μ_1 : max diagonal element 
 """
 function bparlett(A::Hermitian{T}) where T
@@ -33,8 +33,8 @@ function bparlett(A::Hermitian{T}) where T
                 end
             end
 
-            # Max between all elements
-            if(abs(A[i,j]) > μ_0) 
+            # Max off-diagonal element
+            if (i!= j) && (abs(A[i,j]) > μ_0) 
                 μ_0 = abs(A[i,j])
                 p = i
                 q = j
