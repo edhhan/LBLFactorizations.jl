@@ -1,5 +1,6 @@
 using LinearAlgebra
 include("max_subdiagonal.jl")
+include("max_offdiagonal.jl")
 
 """
 Rook pivoting strategy
@@ -32,7 +33,9 @@ function rook(A::Hermitian{T}) where T
         # TODO : check special cas -> i == n
         while(pivot_size == 0)
 
-            ω_r, r = max_subdiagonal(A, i)
+            r = max_subdiagonal(A, i)[2]  # returns index of max subdiagonal element in column i
+            
+            ω_r = max_offdiagonal(A, r)[1]  # returns max element in any off diagonal element in column r
 
             # Pivoting between 1 and r (line and column)
             if abs(A[r,r]) >= α*ω_r 
