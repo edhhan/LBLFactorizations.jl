@@ -65,7 +65,7 @@ display(F.B)
 end
 =#
 # Itération 1 
-n=6
+n=100
 A = rand(n,n)*1000+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)-500*I
 #A =[1 2 3 4 ; 2 5 13 28 ; 3 13 55 131 ; 4 28 131 270]
 display(A)
@@ -75,19 +75,26 @@ L, BD, Permutations = LDL_MGD(A)
 
 F=bunchkaufman(A)
 
+
+
+
+
 display(BD)
-display(A_prime)
 display(F.D)
 display(L)
 display(F.L)
 #display(L*BD*L'-A)
 display(A)
 display(L*BD*L')
-
+display(F.L*F.D*F.L')
 display(Permutations)
-display(F.P)
-#permute_matrix(A, Permutations)
 
 
 
+for i = 1:length(Permutations)
+    P=permutation_matrix(Permutations[i],n)
+    global A=P*A*P'
+end
 
+display(A-L*BD*L')
+println(norm(A-L*BD*L'))

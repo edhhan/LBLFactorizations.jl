@@ -5,7 +5,7 @@ include("max_offdiagonal.jl")
 """
 Rook pivoting strategy
 """
-function rook(A::Hermitian{T}) where T
+function rook(A::AbstractMatrix) where T
     
     α = (1+sqrt(17))/8
     n = size(A,1)
@@ -19,7 +19,8 @@ function rook(A::Hermitian{T}) where T
     
     # Early stopping : no pivoting required and trivial solution for the factorization (special case)
     if (ω_i == 0)
-        pivot_size = 0
+        pivot_size = 1
+        push!(pivot, (1,1))
         return pivot, pivot_size
     end
 
