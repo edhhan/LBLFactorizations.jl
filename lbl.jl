@@ -98,9 +98,9 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
                 # p is a tuple of two indices and  
 
                 # TO DO : WATCH ORDER OF PIVOTING IF 2x2 pivoting
-                P = Matrix(1.0*I, hat_n, hat_n)
+                #P = Matrix(1.0*I, hat_n, hat_n)
                 for p in pivot
-                    #P = Matrix(1.0*I, hat_n, hat_n)
+                    P = Matrix(1.0*I, hat_n, hat_n)
                     idx1 = p[1]
                     idx2 = p[2]
 
@@ -109,9 +109,9 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
                     P[:, idx1] = P[:, idx2]
                     P[:, idx2] = temp
 
-                    #hat_A = (P*hat_A)*P'   # TODO : hat_A = P*hat_A*P' ???
+                    hat_A = (P*hat_A)*P'   # TODO : hat_A = P*hat_A*P' ???
                 end
-                hat_A = (P*hat_A)*P'
+                #hat_A = (P*hat_A)*P'
 
                 # Apply permuations on working matrix
                 # P*hat_A : permute lines
@@ -142,8 +142,8 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
             F.B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
             
             # TODO : verify where to apply permutations
-            #F.L[1:hat_n, 1:hat_n] = P*F.L[1:hat_n, 1:hat_n]*P
-            #F.B[1:hat_n, 1:hat_n] = P*F.B[1:hat_n, 1:hat_n]*P'
+            #F.L[1:hat_n, 1:hat_n] = P*F.L[1:hat_n, 1:hat_n]
+            #F.B[1:hat_n, 1:hat_n] = F.B[1:hat_n, 1:hat_n]*P
 
         end
          

@@ -44,6 +44,7 @@ function bkaufmann(A::Hermitian{T}) where T
         # Pivoting between 2 and r (line and column)
         else
             pivot_size = 2
+            push!(pivot, (1,1))
             push!(pivot, (2,r))
         end
     end
