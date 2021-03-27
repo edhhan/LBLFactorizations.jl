@@ -21,8 +21,8 @@ function bparlett(A::Hermitian{T}) where T
     r = 1
 
     # Find max element in sub-diagonal matrix and max diagonal element
-    for j in 1:n
-        for i in j:n
+    for i in 1:n
+        for j in i:n
 
             # Max on the diagonal : μ_1 = max |a_ij|
             if (i == j)
