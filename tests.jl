@@ -36,14 +36,14 @@ F_rook = lbl(A_assignement, strategy="rook")
 #@test norm(A_assignement - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A_assignement)
 
 
-#=
+
 @testset begin
 
     for _ = 1:10
     
         for n = 4:20
             A = Hermitian(rand(n,n).*100)
-            F = lbl(A, strategy="rook")
+            F = lbl(A, strategy="bparlett")
             
             #@test norm(A - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A)
 
@@ -53,7 +53,7 @@ F_rook = lbl(A_assignement, strategy="rook")
     
     end
 end
-=#
+
 
 # Bunch-parlet by hand 
 # Itération 1 

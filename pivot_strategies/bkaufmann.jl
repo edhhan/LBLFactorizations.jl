@@ -26,8 +26,10 @@ function bkaufmann(A::Hermitian{T}) where T
         push!(pivot, (1,1))
         
     else
+
         # SECOND SEARCH
-        ω_r = max_subdiagonal(A, r)[1]
+        ω_r = max_offdiagonal(A, r)[1]  # returns max element in any off diagonal element in column r
+
 
         # The pivot is a_11 (no pivoting)
         if (a_11*ω_r >= α*ω_1^2) 

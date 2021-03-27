@@ -34,7 +34,6 @@ function rook(A::Hermitian{T}) where T
         while(pivot_size == 0)
 
             r = max_subdiagonal(A, i)[2]  # returns index of max subdiagonal element in column i
-            
             ω_r = max_offdiagonal(A, r)[1]  # returns max element in any off diagonal element in column r
 
             # Pivoting between 1 and r (line and column)
