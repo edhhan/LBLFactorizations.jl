@@ -13,7 +13,6 @@ function permutation_matrix(pivot,n)
 
     P[pivot[2], pivot[1]]=1.0
     P[pivot[1], pivot[2]]=1.0
-
     return P
     
 end

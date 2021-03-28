@@ -5,7 +5,7 @@ Complete pivoting strategy
     μ_0 : max off-diagonal element 
     μ_1 : max diagonal element 
 """
-function bparlett(A::Hermitian{T}) where T
+function bparlett(A::AbstractMatrix{T}) where T
 
     α = (1+sqrt(17))/8
     n = size(A,1)
@@ -20,8 +20,8 @@ function bparlett(A::Hermitian{T}) where T
     q = 1
 
     # Find max element in sub-diagonal matrix and max diagonal element
-    for j in 1:n
-        for i in 1:j
+    for j in 1:n # columns
+        for i in 1:j # lines
 
             # Max diagonal element 
             if (i == j)
