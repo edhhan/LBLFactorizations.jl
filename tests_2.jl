@@ -6,18 +6,6 @@ include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/rook.jl")
 include("lbl.jl")
 
-#=
-n = 5
-A = rand(n,n)*1000+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)-500*I
-B=Symmetric(A)
-
-pivots, dimension = bparlett(B)
-pivots, dimension = bkaufmann(B)
-
-display(B)
-print(pivots,dimension)
-=#
-
 
 # Test
 
@@ -76,8 +64,8 @@ F = bunchkaufman(A);
 
 
 for permutation in F1.permutation_array
-    P=permutation_matrix(permutation, n)
-    global A=P*A*P'
+    P = permutation_matrix(permutation, n)
+    global A = P*A*P'
 end
 
 println( norm(A-  build_matrix(F1))  )

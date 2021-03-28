@@ -5,36 +5,7 @@ using Test
 include("pivot_strategies/bparlett.jl")
 include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/rook.jl")
-include("permute_matrix.jl")
 include("lbl.jl")
-
-
-######### Pivoting test
-#=
-n = 5
-A = rand(n,n)*1000+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)-500*I
-B=Symmetric(A)
-
-pivots, dimension = bparlett(B)
-pivots, dimension = bkaufmann(B)
-
-display(B)
-print(pivots,dimension)
-=#
-
-
-####### Assignement test : works with rook and bkaufmann, fails with bparlett
-#=
-A_assignement =[1 2 3 4 ; 2 5 13 28 ; 3 13 55 131 ; 4 28 131 270]
-A_assignement = Hermitian(A_assignement)
-
-F_bparlett = lbl(A_assignement, strategy="bparlett")
-F_rook = lbl(A_assignement, strategy="rook")
-
-#display(A_assignement)
-#display(F.L*F.B*F.L')
-#@test norm(A_assignement - ) ≤ sqrt(eps()) * norm(A_assignement)
-=#
 
 
 @testset begin
