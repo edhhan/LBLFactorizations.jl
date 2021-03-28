@@ -51,7 +51,7 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     # Initialization
     n = size(A,1)
     hat_n = n
-    F = LBL(zeros(T, n,n), zeros(T, n, n), strategy)
+    F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
     A_prime = copy(A)
 
     s = 1
@@ -69,7 +69,7 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
                     A_prime = P*A_prime*P'
                     P_augmented = Matrix(1.0*I, n,n)
                     P_augmented[s:end,s:end] = P
-                    F.L = P_augmented*F.L
+                    F.L = UnitLowerTriangular(P_augmented*F.L)
                     push_permutation!(F, (s+p[1]-1, s+p[2]-1) ) 
                 end
             end
@@ -82,11 +82,11 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
         E = A_prime[1:pivot_size,1:pivot_size]
 
         # Schur complement 
-        A_prime = Hermitian(Matrix{T}(B - C*inv(E)*C'))
+        A_prime = Hermitian(B - C*inv(E)*C')
         hat_n = size(A_prime,1)
 
         # Fill factorization columns
-        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix{T}(I, pivot_size, pivot_size), C*inv(E) )
+        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(I, pivot_size, pivot_size), C*inv(E) )
         F.B[s:s+pivot_size-1,s:s+pivot_size-1] = E
         
       
