@@ -2,10 +2,10 @@ using LinearAlgebra
 
 """
 Complete pivoting strategy
-    μ_0 : max of diagonal element 
+    μ_0 : max off-diagonal element 
     μ_1 : max diagonal element 
 """
-function bparlett(A::Hermitian{T}) where T
+function bparlett(A::AbstractMatrix{T}) where T
 
     α = (1+sqrt(17))/8
     n = size(A,1)
@@ -14,17 +14,16 @@ function bparlett(A::Hermitian{T}) where T
     pivot_size = 0
 
     μ_0 = 0
-    μ_1 = abs(A[1,1])
-
-    q = 1
-    p = 1
+    μ_1 = 0
     r = 1
+    p = 1
+    q = 1
 
     # Find max element in sub-diagonal matrix and max diagonal element
-    for i in 1:n
-        for j in i:n
+    for j in 1:n # columns
+        for i in 1:j # lines
 
-            # Max on the diagonal : μ_1 = max |a_ij|
+            # Max diagonal element 
             if (i == j)
                 if(abs(A[i,j]) > μ_1)
                     μ_1 = abs(A[i,j])
@@ -32,8 +31,8 @@ function bparlett(A::Hermitian{T}) where T
                 end
             end
 
-            # Max off-diagonal element
-            if !(i == j) && ((abs(A[i,j]) >= μ_0))
+            # Max element
+            if (abs(A[i,j]) > μ_0) 
                 μ_0 = abs(A[i,j])
                 p = i
                 q = j

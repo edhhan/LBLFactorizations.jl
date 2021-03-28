@@ -2,18 +2,24 @@ include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/bparlett.jl")
 include("pivot_strategies/rook.jl")
 include("LBL_structure.jl")
-include("permute_matrix.jl")
-
-import Base.push!
 
 using LinearAlgebra
-using Random
+
+
+function permutation_matrix(pivot,n)
+    P = Matrix(1.0I,n,n)
+    P[pivot[1], pivot[1]] = 0.0
+    P[pivot[2], pivot[2]] = 0.0
+    P[pivot[2], pivot[1]] = 1.0
+    P[pivot[1], pivot[2]] = 1.0
+    return P
+end
 
 
 """
 Wrapper function for pivoting strategy
 """
-function pivoting(A::Hermitian{T}, strategy::String) where T
+function pivoting(A::AbstractMatrix{T}, strategy::String) where T
 
     if strategy == "rook"
         pivot, pivot_size = rook(A)
@@ -27,131 +33,50 @@ function pivoting(A::Hermitian{T}, strategy::String) where T
 end
 
 
-"""
-"""
-function inv_E(E::Union{AbstractMatrix{T}, Array{T}, Float64}, s::Int) where T
-
-    if s==1 || s==0
-        return 1/E[1,1]
-    elseif s==2
-        return inv(E)
-    end
-
-end
-
-
-"""
-PAP^T = [E C^* ; C K]
-
-LBL^* Factorization based on 
-"""
-function lbl(A::Hermitian{T}; strategy::String="rook") where T
-
-    if !ishermitian(A)
-        return @error("LBL* factorization only works on hermitian matrices")
-    end
-
-    if !(strategy in ["rook", "bparlett", "bkaufmann" ])
-        return @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
-    end
-
-    # Initialize working matrix
-    hat_A = deepcopy(A)
-
-    # Initiliaze data-structure factorization
-    n = size(A)[1]
-
-    #F = LBL(LowerTriangular{Float64}(zeros(n,n)), zeros(n, n), strategy)
+function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
+    
+    # Initialization
+    n = size(A,1)
+    hat_n = n
     F = LBL(zeros(n,n), zeros(n, n), strategy)
+    A_prime = copy(A)
 
-    # Initialize loop variable : undefinite number of iteration
     s = 1
+    while(s < n)
 
-    while s <= n 
+        pivot, pivot_size = pivoting(A_prime, strategy)
+        push_pivot!(F, pivot)
 
-        hat_n = size(hat_A)[1]
+        if pivot_size != 0
 
-        # Pivoting
-        pivot, pivot_size = pivoting(hat_A, strategy) 
+            for p in pivot
 
-        # Special case for E and L : skip, no permutation matrix required A = [E C^* ; C B]
-        if pivot_size == 0 
-
-            # We assign -1 to treat it as a special case
-            push_pivot!(F, -1)
-            E = hat_A[1,1]
-            C = hat_A[2:end, 1]
-            B = hat_A[2:end, 2:end]
-            L_special_case = vcat(1, zeros(hat_n-1)) #Special case on L
-
-        else
-
-            push_pivot!(F, pivot)
-
-            # If pivot==[(1,1)] then permutation matrix is identity, so we skip that case
-            # We direcetly have hat_A = [E C^* ; C B] without any permutations
-
-            P = Matrix(1.0*I, hat_n, hat_n)
-            if !(pivot == [(1,1)])
-                
-                # pivot is an array of 1 or 2 tuples p
-                # p is a tuple of two indices and  
-
-                # TO DO : WATCH ORDER OF PIVOTING IF 2x2 pivoting
-                P = Matrix(1.0*I, hat_n, hat_n)
-                for p in pivot
-                    #P = Matrix(1.0*I, hat_n, hat_n)
-                    idx1 = p[1]
-                    idx2 = p[2]
-
-                    # Permutation on columns
-                    temp = P[:,idx1]
-                    P[:, idx1] = P[:, idx2]
-                    P[:, idx2] = temp
-
-                    #hat_A = (P*hat_A)*P'   # TODO : hat_A = P*hat_A*P' ???
+                if p != (1,1)
+                    P = permutation_matrix(p, hat_n)
+                    A_prime = P*A_prime*P'
+                    P_augmented = Matrix(1.0*I, n,n)
+                    P_augmented[s:end,s:end] = P
+                    F.L = P_augmented*F.L
+                    push_permutation!(F, (s+p[1]-1, s+p[2]-1) ) 
                 end
-                hat_A = (P*hat_A)*P'
-
-                # Apply permuations on working matrix
-                # P*hat_A : permute lines
-                # hat_A*P : permute columns
-               
             end
-            
-            # With permutation get bloc-matrices from PAP^T = [E C^* ; C B]
-            E = hat_A[1:pivot_size, 1:pivot_size]
-            C = hat_A[(pivot_size+1):end, 1:pivot_size]
-            B = hat_A[(pivot_size+1):end, (pivot_size+1):end]
-           
-        end
-
-        # Construction of columns of L and B matrices
-        E⁻¹ = inv_E(E, pivot_size)
-        
-        # Special case, where s=1 and no permutation was required
-        if pivot_size==0
-            F.B[s,s] = E
-            F.L[s:end,s] = L_special_case
-            #F.L[s:end,s] = vcat(Matrix(1.0*I, 1, 1), C*E⁻¹ )
-        else
-            # If pivot_size=1, then s+pivot_size-1 = s      =>     s:(s+pivot_size-1) == s:s
-            # If pivot_size=2, then s+pivot_size-1 = s+1    =>     s:(s+pivot_size-1) == s:s+1
-            
-            F.L[s:end, s:(s+pivot_size-1) ] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*E⁻¹ )
-            F.B[s:(s+pivot_size-1), s:(s+pivot_size-1)] = E
-            
-            # TODO : verify where to apply permutations
-            #F.L[1:hat_n, 1:hat_n] = P*F.L[1:hat_n, 1:hat_n]*P
-            #F.B[1:hat_n, 1:hat_n] = P*F.B[1:hat_n, 1:hat_n]*P'
 
         end
-         
-        # Schur complement
-        if hat_n > 1
-            hat_A = Hermitian(B - C*E⁻¹*C')
-        end
+
+        # PAP^T = [E C^* ; C K]
+        B = A_prime[(pivot_size+1):end,(pivot_size+1):end]
+        C = A_prime[(pivot_size+1):end,1:pivot_size]
+        E = A_prime[1:pivot_size,1:pivot_size]
+
+        # Schur complement 
+        A_prime = B-C*inv(E)*C'
+        hat_n = size(A_prime,1)
+
+        # Fill factorization columns
+        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*inv(E) )
+        F.B[s:s+pivot_size-1,s:s+pivot_size-1] = E
         
+      
         # Incremental step depends on the size of pivoting
         if pivot_size==1 || pivot_size==0
             s += 1
@@ -160,7 +85,13 @@ function lbl(A::Hermitian{T}; strategy::String="rook") where T
         end
 
     end
+    if s == n
+        F.L[n, n] = 1
+        F.B[n, n] = A_prime[1,1]
+    end
 
     return F
 end
+
+
 

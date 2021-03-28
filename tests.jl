@@ -24,7 +24,7 @@ print(pivots,dimension)
 
 
 ####### Assignement test : works with rook and bkaufmann, fails with bparlett
-
+#=
 A_assignement =[1 2 3 4 ; 2 5 13 28 ; 3 13 55 131 ; 4 28 131 270]
 A_assignement = Hermitian(A_assignement)
 
@@ -33,20 +33,17 @@ F_rook = lbl(A_assignement, strategy="rook")
 
 #display(A_assignement)
 #display(F.L*F.B*F.L')
-#@test norm(A_assignement - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A_assignement)
-
+#@test norm(A_assignement - ) ≤ sqrt(eps()) * norm(A_assignement)
+=#
 
 
 @testset begin
 
     for _ = 1:10
     
-        for n = 4:20
+        for n = 4:4
             A = Hermitian(rand(n,n).*100)
             F = lbl(A, strategy="bparlett")
-            
-            #@test norm(A - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(A)
-
             PAPT = permute_matrix_lbl(A, F.pivot_array)
             @test norm(PAPT - F.L*F.B*F.L') ≤ sqrt(eps()) * norm(PAPT)
         end

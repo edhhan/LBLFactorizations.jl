@@ -4,12 +4,12 @@ include("max_subdiagonal.jl")
 """
 Partial pivoting strategy
 """
-function bkaufmann(A::AbstractMatrix) where T
+function bkaufmann(A::AbstractMatrix{T}) where T
 
     α = (1+sqrt(17))/8
     n = size(A,1)
     pivot = []
-    pivot_size=0
+    pivot_size = 0
 
     # FIRST SEARCH : looks for the largest absolute value in the subdiagonal element of column 1 
     ω_1, r = max_subdiagonal(A, 1)
@@ -17,8 +17,8 @@ function bkaufmann(A::AbstractMatrix) where T
     
     # Early stopping : no pivoting required and trivial solution for the factorization (special case)
     if (ω_1 == 0)
-        pivot_size = 1
-        push!(pivot, (1,1))
+        pivot_size = 0
+        push!(pivot, -1)
         return pivot, pivot_size
     end
 
@@ -46,7 +46,6 @@ function bkaufmann(A::AbstractMatrix) where T
         # Pivoting between 2 and r (line and column)
         else
             pivot_size = 2
-            push!(pivot, (1,1))
             push!(pivot, (2,r))
         end
     end

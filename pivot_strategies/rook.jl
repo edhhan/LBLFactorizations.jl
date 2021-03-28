@@ -5,7 +5,7 @@ include("max_offdiagonal.jl")
 """
 Rook pivoting strategy
 """
-function rook(A::AbstractMatrix) where T
+function rook(A::AbstractMatrix{T}) where T
     
     α = (1+sqrt(17))/8
     n = size(A,1)

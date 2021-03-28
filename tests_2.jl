@@ -1,9 +1,10 @@
 using LinearAlgebra
+using Test
+
 include("pivot_strategies/bparlett.jl")
 include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/rook.jl")
 include("lbl.jl")
-include("LDL_MGD.jl")
 
 #=
 n = 5
@@ -20,7 +21,6 @@ print(pivots,dimension)
 
 # Test
 
-using Test
 #=
 @testset begin
 
@@ -71,30 +71,13 @@ A = rand(n,n)*1000+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)-500*I
 display(A)
 A=Hermitian(A,:L)
 
-L, BD, Permutations = LDL_MGD(A)
-
-F=bunchkaufman(A)
-
+F1 = lbl(A, "bparlett")
+F = bunchkaufman(A);
 
 
-
-
-display(BD)
-display(F.D)
-display(L)
-display(F.L)
-#display(L*BD*L'-A)
-display(A)
-display(L*BD*L')
-display(F.L*F.D*F.L')
-display(Permutations)
-
-
-
-for i = 1:length(Permutations)
-    P=permutation_matrix(Permutations[i],n)
+for permutation in F1.permutation_array
+    P=permutation_matrix(permutation, n)
     global A=P*A*P'
 end
 
-display(A-L*BD*L')
-println(norm(A-L*BD*L'))
+println( norm(A-  build_matrix(F1))  )
