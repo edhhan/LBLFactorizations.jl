@@ -19,7 +19,7 @@ end
 """
 Wrapper function for pivoting strategy
 """
-function pivoting(A::AbstractMatrix{T}, strategy::String) where T
+function pivoting(A::Hermitian{T}, strategy::String) where T
 
     if strategy == "rook"
         pivot, pivot_size = rook(A)
@@ -33,12 +33,25 @@ function pivoting(A::AbstractMatrix{T}, strategy::String) where T
 end
 
 
-function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
+
+"""
+LBL^* Factorization based on 
+"""
+function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     
+    if !ishermitian(A)
+        return @error("LBL* factorization only works on hermitian matrices")
+    end
+
+    if !(strategy in ["rook", "bparlett", "bkaufmann" ])
+        return @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
+    end
+
+
     # Initialization
     n = size(A,1)
     hat_n = n
-    F = LBL(zeros(n,n), zeros(n, n), strategy)
+    F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
     A_prime = copy(A)
 
     s = 1
@@ -56,7 +69,7 @@ function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
                     A_prime = P*A_prime*P'
                     P_augmented = Matrix(1.0*I, n,n)
                     P_augmented[s:end,s:end] = P
-                    F.L = P_augmented*F.L
+                    F.L = UnitLowerTriangular(P_augmented*F.L)
                     push_permutation!(F, (s+p[1]-1, s+p[2]-1) ) 
                 end
             end
@@ -69,11 +82,11 @@ function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
         E = A_prime[1:pivot_size,1:pivot_size]
 
         # Schur complement 
-        A_prime = B-C*inv(E)*C'
+        A_prime = Hermitian(B - C*inv(E)*C')
         hat_n = size(A_prime,1)
 
         # Fill factorization columns
-        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(1.0*I, pivot_size, pivot_size), C*inv(E) )
+        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(I, pivot_size, pivot_size), C*inv(E) )
         F.B[s:s+pivot_size-1,s:s+pivot_size-1] = E
         
       
@@ -85,6 +98,8 @@ function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
         end
 
     end
+
+    # Last step
     if s == n
         F.L[n, n] = 1
         F.B[n, n] = A_prime[1,1]
