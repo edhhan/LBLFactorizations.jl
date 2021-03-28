@@ -19,7 +19,7 @@ end
 """
 Wrapper function for pivoting strategy
 """
-function pivoting(A::AbstractMatrix{T}, strategy::String) where T
+function pivoting(A::Hermitian{T}, strategy::String) where T
 
     if strategy == "rook"
         pivot, pivot_size = rook(A)
@@ -33,8 +33,21 @@ function pivoting(A::AbstractMatrix{T}, strategy::String) where T
 end
 
 
-function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
+
+"""
+LBL^* Factorization based on 
+"""
+function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     
+    if !ishermitian(A)
+        return @error("LBL* factorization only works on hermitian matrices")
+    end
+
+    if !(strategy in ["rook", "bparlett", "bkaufmann" ])
+        return @error("Invalid pivoting strategy.\nChoose string::strategy ∈ {rook, bparlett, bkaufmann}.")
+    end
+
+
     # Initialization
     n = size(A,1)
     hat_n = n
@@ -69,7 +82,7 @@ function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
         E = A_prime[1:pivot_size,1:pivot_size]
 
         # Schur complement 
-        A_prime = B-C*inv(E)*C'
+        A_prime = Hermitian(B - C*inv(E)*C')
         hat_n = size(A_prime,1)
 
         # Fill factorization columns
@@ -85,6 +98,8 @@ function lbl(A::AbstractMatrix, strategy::String="bkaufmann")
         end
 
     end
+
+    # Last step
     if s == n
         F.L[n, n] = 1
         F.B[n, n] = A_prime[1,1]

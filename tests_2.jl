@@ -69,7 +69,7 @@ n=100
 A = rand(n,n)*1000+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)+rand(n,n)-500*I
 #A =[1 2 3 4 ; 2 5 13 28 ; 3 13 55 131 ; 4 28 131 270]
 display(A)
-A=Hermitian(A,:L)
+A = Hermitian(A,:L)
 
 F1 = lbl(A, "bparlett")
 F = bunchkaufman(A);
