@@ -6,7 +6,8 @@ abstract type AbstractLBL{T} end
 LBL data struture
 """
 mutable struct LBL{T} <: AbstractLBL{T} 
-    L::UnitLowerTriangular{T}
+    #::UnitLowerTriangular{T}
+    L::AbstractMatrix{T}   
     B::AbstractMatrix{T}
     strategy::String
     pivot_array::Array{Any,1}
@@ -17,8 +18,7 @@ end
 """
 Constructor 
 """
-#function LBL(L::LowerTriangular{T}, B::AbstractMatrix{T}, strategy::String="rook", pivot_array::Array{Any,1} = Any[] ) where T 
-function LBL(L::UnitLowerTriangular{T}, B::AbstractMatrix{T},
+function LBL(L::AbstractMatrix{T}, B::AbstractMatrix{T},
              strategy::String="rook", pivot_array::Array{Any,1} = Any[], permutation_array::Array{Any,1} = Any[]  ) where T   
     return LBL{T}(L, B, strategy, pivot_array, permutation_array )
 end

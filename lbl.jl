@@ -51,8 +51,9 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     # Initialization
     n = size(A,1)
     hat_n = n
-    F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
-    A_prime = Matrix(A)
+    #F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
+    F = LBL(zeros(n,n), zeros(n, n), strategy)
+    A_prime = Matrix(A) # A_prime cannot be hermitian because of the inplace permutations below
 
     s = 1
     while(s < n)
@@ -65,9 +66,9 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
             for p in pivot
 
                 if p != (1,1)
-                    
-                    P = permutation_matrix(p, hat_n)
 
+                    #A_prime = P*A_prime*P'
+                    
                     # Permutation inplace on lines
                     temp = A_prime[p[1], :]
                     A_prime[p[1], :] = A_prime[p[2], :]
@@ -78,13 +79,17 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
                     A_prime[:, p[1]] = A_prime[:,p[2]]
                     A_prime[:, p[2]] = temp
 
+                    #P_augmented = Matrix(1.0*I, n,n)
+                    #P_augmented[s:end,s:end] = P
+                    temp = F.L[s+p[1]-1, :]
+                    F.L[s+p[1]-1, :] = F.L[s+p[2]-1, :]
+                    F.L[s+p[2]-1, :] = temp
 
-                    #A_prime = P*A_prime*P'
                     
-                    P_augmented = Matrix(1.0*I, n,n)
-                    P_augmented[s:end,s:end] = P
-                    F.L = UnitLowerTriangular(P_augmented*F.L)
+                    #F.L = UnitLowerTriangular(P_augmented*F.L) # P*hat_A : permute lines
                     push_permutation!(F, (s+p[1]-1, s+p[2]-1) ) 
+                    
+
                 end
             end
 
