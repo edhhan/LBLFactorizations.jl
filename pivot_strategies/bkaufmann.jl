@@ -4,8 +4,8 @@ include("max_subdiagonal.jl")
 """
 Partial pivoting strategy
 """
-function bkaufmann(A::Hermitian{T}) where T
-
+#function bkaufmann(A::Hermitian{T}) where T
+function bkaufmann(A::AbstractMatrix{T}) where T
     α = (1+sqrt(17))/8
     n = size(A,1)
     pivot = []

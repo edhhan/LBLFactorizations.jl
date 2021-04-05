@@ -5,8 +5,8 @@ Complete pivoting strategy
     μ_0 : max off-diagonal element 
     μ_1 : max diagonal element 
 """
-function bparlett(A::Hermitian{T}) where T
-
+#function bparlett(A::Hermitian{T}) where T
+function bparlett(A::AbstractMatrix{T}) where T
     α = (1+sqrt(17))/8
     n = size(A,1)
 

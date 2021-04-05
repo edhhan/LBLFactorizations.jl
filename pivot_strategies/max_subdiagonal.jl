@@ -3,7 +3,7 @@ using LinearAlgebra
 """
 Utility function for bparlett and rook pivoting strategy
 """
-function max_subdiagonal(A::AbstractMatrix, column_index :: Number)
+function max_subdiagonal(A::AbstractMatrix{T}, column_index :: Number) where T
     #n is the number of rows of matrix A
     n = size(A,1)
     max_value = 0

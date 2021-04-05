@@ -19,8 +19,8 @@ end
 """
 Wrapper function for pivoting strategy
 """
-function pivoting(A::Hermitian{T}, strategy::String) where T
-
+#function pivoting(A::Hermitian{T}, strategy::String) where T
+function pivoting(A::AbstractMatrix{T}, strategy::String) where T
     if strategy == "rook"
         pivot, pivot_size = rook(A)
     elseif strategy == "bparlett"
@@ -37,8 +37,8 @@ end
 """
 LBL^* Factorization based on 
 """
-function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
-    
+#function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
+function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T   
     if !ishermitian(A)
         return @error("LBL* factorization only works on hermitian matrices")
     end
@@ -52,7 +52,7 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     n = size(A,1)
     hat_n = n
     F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
-    A_prime = copy(A)
+    A_prime = Matrix(A)
 
     s = 1
     while(s < n)
@@ -65,8 +65,22 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
             for p in pivot
 
                 if p != (1,1)
+                    
                     P = permutation_matrix(p, hat_n)
-                    A_prime = P*A_prime*P'
+
+                    # Permutation inplace on lines
+                    temp = A_prime[p[1], :]
+                    A_prime[p[1], :] = A_prime[p[2], :]
+                    A_prime[p[2], :] = temp
+                    
+                    # Permutation inplace on columns
+                    temp = A_prime[:, p[1]]
+                    A_prime[:, p[1]] = A_prime[:,p[2]]
+                    A_prime[:, p[2]] = temp
+
+
+                    #A_prime = P*A_prime*P'
+                    
                     P_augmented = Matrix(1.0*I, n,n)
                     P_augmented[s:end,s:end] = P
                     F.L = UnitLowerTriangular(P_augmented*F.L)
@@ -82,7 +96,8 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
         E = A_prime[1:pivot_size,1:pivot_size]
 
         # Schur complement 
-        A_prime = Hermitian(B - C*inv(E)*C')
+        #A_prime = Hermitian(B - C*inv(E)*C')
+        A_prime = (B - C*inv(E)*C')
         hat_n = size(A_prime,1)
 
         # Fill factorization columns
