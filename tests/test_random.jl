@@ -13,7 +13,7 @@ include("../lbl.jl")
         for _ = 1:5
             for n = 4:100
                              
-                A = Hermitian(rand(Complex{Float64}, n,n).*100)
+                A = Hermitian(rand(Float64, n,n).*100)
                 F = lbl(A, strategy)
                 F_build = build_matrix(F)
 
