@@ -1,9 +1,17 @@
 using LinearAlgebra
 
 """
-Complete pivoting strategy
-    μ_0 : max off-diagonal element 
-    μ_1 : max diagonal element 
+Complete pivoting strategy. Provides the pivot according to the bunch-parlett pivoting strategy. Based on:
+    Accuracy and stability of numerical algorithms, Chapter 11, Higham, Nicholas J, 2002, SIAM
+    
+    The chapter describe the following elements in the strategy:
+    
+    μ_0 : max element in upper triangular with row index p and column index q
+    μ_1 : max diagonal element  with row and column index r
+
+    α is a parameter derived by minimizing the bound on the element growth.
+    
+    This function returns the size of the pivot in pivot_size and the pivot as an array of tuple of the form (k,l) where rows and column k and l have to be swapped. 
 """
 #function bparlett(A::Hermitian{T}) where T
 function bparlett(A::AbstractMatrix{T}) where T

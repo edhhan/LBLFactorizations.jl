@@ -3,7 +3,22 @@ include("max_subdiagonal.jl")
 include("max_offdiagonal.jl")
 
 """
-Rook pivoting strategy
+Rook pivoting strategy. Provides the pivot according to the rook pivoting strategy (Ashcraft, Grimes, and Lewis). Based on:
+    Accuracy and stability of numerical algorithms, Chapter 11, Higham, Nicholas J, 2002, SIAM
+
+    The chapter describe exactly the following elements in the strategy:
+
+    ω_i is the maximimum magnitude of any off-diagonal entry in column r of the previous iteration. Initialized as the maximum magnitude of any subdiagonal entry in column 1.
+
+    r is the row index of the first (subdiagonal) entry of maximum magnitude in column i. 
+
+    ω_r is the maximimum magnitude of any off-diagonal entry in column r.
+
+    α is a parameter derived by minimizing the bound on the element growth.
+
+
+    This function returns pivot_size=0 and pivot=-1 if there is only nonzero elements under the diagonal element in column 1.
+    Otherwise it returns the size of the pivot in pivot_size and the pivot as an array of tuple of the form (k,l) where rows and column k and l have to be swapped. 
 """
 #function rook(A::Hermitian{T}) where T
 function rook(A::AbstractMatrix{T}) where T
