@@ -17,10 +17,8 @@ include("../lbl.jl")
         F_build = build_matrix(F)
 
         # Permute matrix A with permutations within LBL^* factorization
-        for permutation in F.permutation_array
-            P = permutation_matrix(permutation, n)
-            A = P*A*P'
-        end
+        P = permutation_matrix(F.permutation, n)
+        A = P*A*P'
         
         @test norm(A - F_build) ≤ sqrt(eps()) * norm(A)
         display(F_build)

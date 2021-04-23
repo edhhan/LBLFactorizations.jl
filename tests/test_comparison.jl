@@ -4,7 +4,10 @@ include("../pivot_strategies/bkaufmann.jl")
 include("../pivot_strategies/rook.jl")
 include("../lbl.jl")
 using LinearAlgebra
+using Test
 
+
+#Doesn't work, bunchkaufman doesn't seem to do the same strategy as our
 @testset begin
 
         for _ = 1:5

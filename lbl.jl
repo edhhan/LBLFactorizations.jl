@@ -5,17 +5,17 @@ include("LBL_structure.jl")
 
 using LinearAlgebra
 
+"""
+Return the permutation matrice associated with the pivot
+"""
+function permutation_matrix(permutation,n)
+    P = zeros(n,n)
+    for i=1:n
+        P[i,permutation[i]]=1
+    end
 
-function permutation_matrix(pivot,n)
-    P = Matrix(1.0I,n,n)
-    P[pivot[1], pivot[1]] = 0.0
-    P[pivot[2], pivot[2]] = 0.0
-    P[pivot[2], pivot[1]] = 1.0
-    P[pivot[1], pivot[2]] = 1.0
     return P
 end
-
-
 """
 Wrapper function for pivoting strategy
 """
@@ -51,11 +51,13 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     # Initialization
     n = size(A,1)
     hat_n = n
-    #F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
-    F = LBL(zeros(n,n), zeros(n, n), strategy)
+    F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
+    #F = LBL(zeros(n,n), zeros(n, n), strategy)
+    F.permutation=1:n
+
     A_prime = Matrix(A) # A_prime cannot be hermitian because of the inplace permutations below
 
-    s = 1
+    s = Int64(1)
     while(s < n)
 
         pivot, pivot_size = pivoting(A_prime, strategy)
@@ -63,7 +65,7 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
 
         if pivot_size != 0
 
-            for p in pivot
+            for p in pivot 
 
                 if p != (1,1)
 
@@ -79,16 +81,15 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
                     A_prime[:, p[1]] = A_prime[:,p[2]]
                     A_prime[:, p[2]] = temp
 
-                    #P_augmented = Matrix(1.0*I, n,n)
-                    #P_augmented[s:end,s:end] = P
-                    temp = F.L[s+p[1]-1, :]
-                    F.L[s+p[1]-1, :] = F.L[s+p[2]-1, :]
-                    F.L[s+p[2]-1, :] = temp
+                    # Permutation of UnitLowerTriangular matrix L
+                    temp = F.L[s+p[1]-1, 1:s+p[1]-2]
+                    F.L[s+p[1]-1, 1:s+p[1]-2] = F.L[s+p[2]-1, 1:1:s+p[1]-2] 
+                    F.L[s+p[2]-1, 1:s+p[1]-2] = temp 
 
-                    
-                    #F.L = UnitLowerTriangular(P_augmented*F.L) # P*hat_A : permute lines
-                    push_permutation!(F, (s+p[1]-1, s+p[2]-1) ) 
-                    
+                    # Updating permutation vector
+                    temp=F.permutation[s+p[1]-1]
+                    F.permutation[s+p[1]-1]=F.permutation[s+p[2]-1]
+                    F.permutation[s+p[2]-1]=temp
 
                 end
             end
@@ -102,13 +103,14 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
 
         # Schur complement 
         #A_prime = Hermitian(B - C*inv(E)*C')
-        A_prime = (B - C*inv(E)*C')
+        inv_E=inv(E)
+        A_prime = (B - C*inv_E*C')
         hat_n = size(A_prime,1)
 
         # Fill factorization columns
         F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(I, pivot_size, pivot_size), C*inv(E) )
         F.B[s:s+pivot_size-1,s:s+pivot_size-1] = E
-        
+        push_B_inv!(F, (inv_E,s))
       
         # Incremental step depends on the size of pivoting
         if pivot_size==1 || pivot_size==0
@@ -123,14 +125,9 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     if s == n
         F.L[n, n] = 1
         F.B[n, n] = A_prime[1,1]
+        inv_E=inv(A_prime[1,1])
+        push_B_inv!(F, (inv_E,s))
     end
 
     return F
-end
-
-
-export ldiv!
-function lbl_solve!(LBL::AbstractLBL, b:;AbstractVector) where T   
-    
-
 end
