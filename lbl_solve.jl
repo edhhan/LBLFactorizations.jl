@@ -3,7 +3,8 @@ include("LBL_structure.jl")
 using LinearAlgebra
 #Solving the Bx=b system using precalculated inverses of the blocks of B, B_inv[i][2] contains the index of
 # position of the block inverses in the block matrix B.d
-#To parallelize
+
+#To parallelize, @avxt thread=x?
 function solve_block_diagonal(B_inv::Array{Any,1}, b::AbstractVector)
     n=length(B_inv)
     for i=1:n

@@ -2,6 +2,7 @@ import Base.push!
 using LinearAlgebra
 
 abstract type AbstractLBL{T} end
+
 """
 LBL data struture
 """

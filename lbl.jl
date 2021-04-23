@@ -101,11 +101,11 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
         # Schur complement 
         #A_prime = Hermitian(B - C*inv(E)*C')
         inv_E=inv(A_prime[1:pivot_size,1:pivot_size])
-        A_prime = (B - C*inv_E*C')
+        A_prime = (B - C*inv_E*C') #Prend bcp de temps
         hat_n = size(A_prime,1)
 
         # Fill factorization columns
-        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(I, pivot_size, pivot_size), C*inv_E )
+        F.L[s+pivot_size:end,s:s+pivot_size-1] = C*inv_E
         F.B[s:s+pivot_size-1,s:s+pivot_size-1] = E
         push_B_inv!(F, (inv_E,s))
       
@@ -117,7 +117,7 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
         end
 
     end
-
+    
     # Last step
     if s == n
         F.L[n, n] = 1
