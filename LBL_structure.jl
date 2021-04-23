@@ -8,7 +8,7 @@ LBL data struture
 """
 mutable struct LBL{T} <: AbstractLBL{T} 
     L::UnitLowerTriangular{T}   
-    B::AbstractMatrix{T}
+    B::Tridiagonal
     strategy::String
     B_inv::Array{Any,1}
     pivot_array::Array{Any,1}
@@ -18,8 +18,8 @@ end
 """
 Constructor 
 """
-function LBL(L::UnitLowerTriangular{T}, B::AbstractMatrix{T}, 
-             strategy::String="rook", B_inv::Array{Any,1}=Any[], pivot_array::Array{Any,1} = Any[], permutation::Array{Int64,1}= Int64[]) where T   
+function LBL(L::UnitLowerTriangular{T}, B::Tridiagonal{T},
+strategy::String="rook", B_inv::Array{Any,1}=Any[], pivot_array::Array{Any,1} = Any[], permutation::Array{Int64,1}= Int64[]) where T   
     return LBL{T}(L, B, strategy, B_inv, pivot_array, permutation)
 end
 

@@ -37,7 +37,6 @@ end
 """
 LBL^* Factorization based on 
 """
-#function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
 function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T   
     if !ishermitian(A)
         return @error("LBL* factorization only works on hermitian matrices")
@@ -51,7 +50,7 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     # Initialization
     n = size(A,1)
     hat_n = n
-    F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
+    F = LBL(UnitLowerTriangular(zeros(n,n)), Tridiagonal(zeros(n, n)), strategy)
     #F = LBL(zeros(n,n), zeros(n, n), strategy)
     F.permutation=1:n
     A_prime = Matrix(A) # A_prime cannot be hermitian because of the inplace permutations below
@@ -104,7 +103,7 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
         A_prime = (B - C*inv_E*C') #Prend bcp de temps
         hat_n = size(A_prime,1)
 
-        # Fill factorization columns
+        # Fill factorization columns in L and block-diagonal (1x1 or 2x2) in E
         F.L[s+pivot_size:end,s:s+pivot_size-1] = C*inv_E
         F.B[s:s+pivot_size-1,s:s+pivot_size-1] = E
         push_B_inv!(F, (inv_E,s))
