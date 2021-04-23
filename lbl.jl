@@ -54,7 +54,6 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     F = LBL(UnitLowerTriangular(zeros(n,n)), zeros(n, n), strategy)
     #F = LBL(zeros(n,n), zeros(n, n), strategy)
     F.permutation=1:n
-
     A_prime = Matrix(A) # A_prime cannot be hermitian because of the inplace permutations below
 
     s = Int64(1)
@@ -68,10 +67,8 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
             for p in pivot 
 
                 if p != (1,1)
-
-                    #A_prime = P*A_prime*P'
                     
-                    # Permutation inplace on lines
+                    # Permutation inplace on lines 
                     temp = A_prime[p[1], :]
                     A_prime[p[1], :] = A_prime[p[2], :]
                     A_prime[p[2], :] = temp
@@ -97,18 +94,18 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
         end
 
         # PAP^T = [E C^* ; C K]
-        B = A_prime[(pivot_size+1):end,(pivot_size+1):end]
-        C = A_prime[(pivot_size+1):end,1:pivot_size]
-        E = A_prime[1:pivot_size,1:pivot_size]
+        B = A_prime[(pivot_size+1):hat_n,(pivot_size+1):hat_n] #B
+        C = A_prime[(pivot_size+1):hat_n,1:pivot_size]         #C
+        E = A_prime[1:pivot_size,1:pivot_size]                 #E
 
         # Schur complement 
         #A_prime = Hermitian(B - C*inv(E)*C')
-        inv_E=inv(E)
+        inv_E=inv(A_prime[1:pivot_size,1:pivot_size])
         A_prime = (B - C*inv_E*C')
         hat_n = size(A_prime,1)
 
         # Fill factorization columns
-        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(I, pivot_size, pivot_size), C*inv(E) )
+        F.L[s:end,s:s+pivot_size-1] = vcat(Matrix(I, pivot_size, pivot_size), C*inv_E )
         F.B[s:s+pivot_size-1,s:s+pivot_size-1] = E
         push_B_inv!(F, (inv_E,s))
       

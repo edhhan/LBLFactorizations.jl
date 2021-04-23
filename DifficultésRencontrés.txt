@@ -3,9 +3,9 @@ Difficultées rencontrées:
 - Modification de la décomposition et de la structure pour garder en mémoire les blocs inverse E^-1 qui sont déjà précalculer durant la factorisation dans le complément de schur
 - Modification de la décomposition et de la structure pour retourner au fur et à mesure le vecteur de permutation qui est ensuite utilisé dans le solver.
 - Trop de mémoire utilisé lors de la factorisation 
-
+- Comprendre les flame graphs: http://www.brendangregg.com/flamegraphs.html
 - Rapidité du solver qui était moins rapide que A\b, notamment à cause du print que je n'avais pas remarqué.
-
+- Temps de calcul exponentiel pour la decomposition lbl
 
 Effectués:
 
