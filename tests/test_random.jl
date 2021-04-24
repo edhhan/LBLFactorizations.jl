@@ -6,15 +6,14 @@ include("../pivot_strategies/bkaufmann.jl")
 include("../pivot_strategies/rook.jl")
 include("../lbl.jl")
 
-
 @testset begin 
 
     for strategy in ["bparlett", "bkaufmann", "rook"]
 
         for _ = 1:5
-            for n = 4:100 #100
+            for n = 4:100 
                              
-                A = Hermitian(rand(Float64, n,n).*100, :U)
+                A = Hermitian(rand(Float64, n,n).*100, :L)
                 F = lbl(A, strategy)
                 F_build = build_matrix(F)
 

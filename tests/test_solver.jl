@@ -45,7 +45,7 @@ test_data8 = Float64[]
 #DIM_START is the starting dimension
 DIM_START=50
 DIM_JUMP=50
-DIM_MAX=2000
+DIM_MAX=1000
 for n=DIM_START:DIM_JUMP:DIM_MAX
 
     A = Hermitian(rand(Float64, n,n).*100)
@@ -91,8 +91,8 @@ for n=DIM_START:DIM_JUMP:DIM_MAX
 
 
 end
-
-
+#Uncomment to export to CSV and plot graphs
+#=
     println("Everything done")
 
     # Creating DataFrame
@@ -114,3 +114,4 @@ end
     plot(df[:,9],datatograph1, title="Temps de calcul selon la dimension \n (Construction) (bunchkaufman solver*200)", label = ["lbl bkaufmann" "lbl bparlett" "lbl rook" "Bunchkaufman constructor" ] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
     #Second graph showing the calculation time required to solve Ax=b using the previously constructed LBLT factorization according to the dimension of the problem considered
     plot(df[:,9],datatograph2, title="Temps de calcul selon la dimension ", label = ["lbl bkaufmann solver" "lbl bparlett solver" "lbl rook solver" "Bunchkaufman solver"] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
+=#

@@ -38,7 +38,8 @@ Each strategy is relevant : it depends on the the structure of the matrix and th
 [2] G. Poole and L. Neal, “The rook’s pivoting strategy,”Journal of Computational and Applied Mathematics,
     vol. 123, no. 1-2, pp. 353–369, 2000.
 """
-function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook") where T   
+#Second version of lbl to test modifications
+function lbl_v2(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook") where T   
 
     if !ishermitian(A)
         return @error("LBL* factorization only works on hermitian matrices")
@@ -56,8 +57,13 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
     F = LBL(UnitLowerTriangular(Zeros), Tridiagonal(Zeros), strategy)
     F.permutation = 1:n
 
-    A_prime = Matrix(A) # A_prime cannot be hermitian because of the inplace permutations below
 
+    if A.uplo=='L'
+        A_prime=deepcopy(Hermitian(A.data',:U))
+    else
+
+    A_prime = deepcopy(A)
+    end
     s = 1
     while(s < n)
 
@@ -68,16 +74,26 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
             for p in pivot 
                 if p != (1,1)
 
-                    # Permutation inplace on lines 
-                    temp = A_prime[p[1], :]
-                    A_prime[p[1], :] = A_prime[p[2], :]
-                    A_prime[p[2], :] = temp
-                    
-                    # Permutation inplace on columns
-                    temp = A_prime[:, p[1]]
-                    A_prime[:, p[1]] = A_prime[:,p[2]]
-                    A_prime[:, p[2]] = temp
+                    p1=p[1]
+                    p2=p[2]
 
+                    temp=A_prime.data[p1,p1+1:p2-1]
+                    A_prime.data[p1,p1+1:p2-1]=A_prime.data[p1+1:p2-1,p2]'
+                    A_prime.data[p1+1:p2-1,p2]=temp'
+                            
+                    A_prime.data[p1,p2]=A_prime.data[p1,p2]'
+                            
+                    temp=A_prime.data[p1,p2+1:end]
+                    A_prime.data[p1,p2+1:end]=A_prime.data[p2,p2+1:end]
+                    A_prime.data[p2,p2+1:end]=temp
+                        
+                    temp=A_prime.data[1:p1-1,p1]
+                    A_prime.data[1:p1-1,p1]=A_prime.data[1:p1-1,p2]
+                    A_prime.data[1:p1-1,p2]=temp   
+                        
+                    temp=A_prime.data[p1,p1]
+                    A_prime.data[p1,p1]=A_prime.data[p2,p2]
+                    A_prime.data[p2,p2]=temp
 
                     # Permutation of UnitLowerTriangular matrix L
                     temp = F.L[s+p[1]-1, 1:s+p[1]-2]
@@ -97,13 +113,13 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
         # PAP^T = [E C^* 
         #          C B ]
         # Matrices below are identified in the PAP^T matrix 
-        B = A_prime[(pivot_size+1):hat_n, (pivot_size+1):hat_n] 
-        C = A_prime[(pivot_size+1):hat_n, 1:pivot_size]         
-        E = A_prime[1:pivot_size, 1:pivot_size]                 
+        B = Hermitian(A_prime[(pivot_size+1):hat_n, (pivot_size+1):hat_n]) 
+        C = A_prime[(pivot_size+1):hat_n, 1:pivot_size]   
+        E = Hermitian(A_prime[1:pivot_size, 1:pivot_size])                 
 
         # Schur complement 
-        inv_E = inv(A_prime[1:pivot_size,1:pivot_size])
-        A_prime = B - C*inv_E*C' # NOTE : botte-neck in the FlameGraph
+        inv_E = inv(E)
+        A_prime = Hermitian(B - C*inv_E*C', :U) # NOTE : botte-neck in the FlameGraph
         hat_n = size(A_prime,1)
 
         # Fill factorization columns in L and block-diagonal (1x1 or 2x2) in E

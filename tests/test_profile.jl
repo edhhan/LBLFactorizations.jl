@@ -10,7 +10,7 @@ n=1000 #MAX 2000
 
 A = Hermitian(rand(Float64, n,n).*100)
 
-ProfileView.@profview lbl(A, "rook")
+ProfileView.@profview lbl(A)
 #ProfileSVG.@profview lbl(A, "rook")
 
 #=
