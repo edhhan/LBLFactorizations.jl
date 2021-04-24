@@ -1,4 +1,4 @@
-using Test, LBLFactorizations
+using Test, LBLFactorizations, LinearAlgebra
 
 @testset begin 
 
