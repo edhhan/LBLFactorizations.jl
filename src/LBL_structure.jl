@@ -51,6 +51,7 @@ function push_B_inv!(A::LBL{T}, inv_E::Any) where T
     push!(A.B_inv, inv_E)
 end
 
+export build_matrix
 """
 Utility function for tests 
 """

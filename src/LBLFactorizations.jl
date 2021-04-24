@@ -241,6 +241,8 @@ function lbl_v2(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="roo
 
     return F
 end
+
+export permutation_matrix
 """
 Utility function that constructs the permutation matrix associated to the a vector of permutation.
 The function is used in the tests/test_assignement.jl file in which we reconstruct the matrix A, i.e A=L*B*L'
@@ -288,5 +290,12 @@ function pivoting(A::AbstractMatrix{T}, strategy::String) where T
     return pivot, pivot_size
 end
 
+export build_matrix
+"""
+Utility function for tests 
+"""
+function build_matrix(A::LBL{T}) where T
+    return A.L * A.B * A.L'
+end
 
 end # module
