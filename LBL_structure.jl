@@ -21,7 +21,7 @@ Utility attributes:
 """
 mutable struct LBL{T} <: AbstractLBL{T} 
     L::UnitLowerTriangular{T}   
-    B::Tridiagonal
+    B::Tridiagonal{T}
     strategy::String
     B_inv::Array{Any,1}
     pivot_array::Array{Any,1}
