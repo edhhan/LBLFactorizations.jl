@@ -40,6 +40,7 @@ Each strategy is relevant : it depends on the the structure of the matrix and th
 [2] G. Poole and L. Neal, “The rook’s pivoting strategy,”Journal of Computational and Applied Mathematics,
     vol. 123, no. 1-2, pp. 353–369, 2000.
 """
+export lbl
 function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook") where T   
 
     if !ishermitian(A)
