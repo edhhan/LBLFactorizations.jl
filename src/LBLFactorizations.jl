@@ -136,7 +136,65 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
 
     return F
 end
-#Second version of lbl to test modifications
+
+export permutation_matrix
+"""
+Utility function that constructs the permutation matrix associated to the a vector of permutation.
+The function is used in the tests/test_assignement.jl file in which we reconstruct the matrix A, i.e A=L*B*L'
+
+    Input :
+        -permutation : a vector of permutation (permutation attribute of the LBL_structure), i.e. LBL.permutation
+        -n : size of the square matrix
+
+    Output :
+        -P : a permutation matrix
+"""
+function permutation_matrix(permutation, n)
+    
+    P = zeros(n,n)
+    for i = 1:n
+        P[i,permutation[i]] = 1
+    end
+
+    return P
+end
+
+
+"""
+Wrapper function pivoting strategy in lbl() : enhances the readability
+
+    Input : 
+        -A : an AbstractMatrix, called A_prime in the lbl() function
+        -strategy : a pivoting strategy, i.e. strategy ∈ {rook, bparlett, bkaufmann}
+                    (see pivot_strategies dir for more info)
+
+    Output :
+        -pivot : a tuple (idx1, idx2) that describes the indices to permute
+        -pivot_size : a size, i.e size ∈ {0, 1, 2}, that enables us to treat different cases in the lbl() function
+"""
+function pivoting(A::AbstractMatrix{T}, strategy::String) where T
+    
+    if strategy == "rook"
+        pivot, pivot_size = rook(A)
+    elseif strategy == "bparlett"
+        pivot, pivot_size = bparlett(A)
+    elseif strategy == "bkaufmann"
+        pivot, pivot_size = bkaufmann(A)
+    end
+
+    return pivot, pivot_size
+end
+
+export build_matrix
+"""
+Utility function for tests 
+"""
+function build_matrix(A::LBL{T}) where T
+    return A.L * A.B * A.L'
+end
+
+
+# Second version of lbl to test modifications : robust Hermitian type for A_prime (less effective/slower)
 function lbl_v2(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook") where T   
 
     if !ishermitian(A)
@@ -243,62 +301,6 @@ function lbl_v2(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="roo
     end
 
     return F
-end
-
-export permutation_matrix
-"""
-Utility function that constructs the permutation matrix associated to the a vector of permutation.
-The function is used in the tests/test_assignement.jl file in which we reconstruct the matrix A, i.e A=L*B*L'
-
-    Input :
-        -permutation : a vector of permutation (permutation attribute of the LBL_structure), i.e. LBL.permutation
-        -n : size of the square matrix
-
-    Output :
-        -P : a permutation matrix
-"""
-function permutation_matrix(permutation, n)
-    
-    P = zeros(n,n)
-    for i = 1:n
-        P[i,permutation[i]] = 1
-    end
-
-    return P
-end
-
-
-"""
-Wrapper function pivoting strategy in lbl() : enhances the readability
-
-    Input : 
-        -A : an AbstractMatrix, called A_prime in the lbl() function
-        -strategy : a pivoting strategy, i.e. strategy ∈ {rook, bparlett, bkaufmann}
-                    (see pivot_strategies dir for more info)
-
-    Output :
-        -pivot : a tuple (idx1, idx2) that describes the indices to permute
-        -pivot_size : a size, i.e size ∈ {0, 1, 2}, that enables us to treat different cases in the lbl() function
-"""
-function pivoting(A::AbstractMatrix{T}, strategy::String) where T
-    
-    if strategy == "rook"
-        pivot, pivot_size = rook(A)
-    elseif strategy == "bparlett"
-        pivot, pivot_size = bparlett(A)
-    elseif strategy == "bkaufmann"
-        pivot, pivot_size = bkaufmann(A)
-    end
-
-    return pivot, pivot_size
-end
-
-export build_matrix
-"""
-Utility function for tests 
-"""
-function build_matrix(A::LBL{T}) where T
-    return A.L * A.B * A.L'
 end
 
 end # module
