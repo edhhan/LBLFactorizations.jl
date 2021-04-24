@@ -1,6 +1,6 @@
 using Test, LBLFactorizations, LinearAlgebra
 
-@testset begin 
+@testset "PAPT=LDLT" begin 
 
     for strategy in ["bparlett", "bkaufmann", "rook"]
 
@@ -26,7 +26,7 @@ end
 
 
 #Test for bkaufmann, 5 cases 
-@testset begin
+@testset "Pivot Strategies" begin
     #First case: maximum magnitude of any subdiagonal entry in column 1 = 0, should return pivot_size=0, pivot=-1
 
     A=[-10 0  0    0  ;
