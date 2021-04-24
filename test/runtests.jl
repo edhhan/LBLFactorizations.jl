@@ -7,7 +7,7 @@ using Test, LBLFactorizations, LinearAlgebra
         for _ = 1:5
             for n = 4:100 
                              
-                A = Hermitian(rand(Float64, n,n).*100, :L)
+                A = Hermitian(rand(Float64, n,n).*100)
                 F = lbl(A, strategy)
                 F_build = build_matrix(F)
 

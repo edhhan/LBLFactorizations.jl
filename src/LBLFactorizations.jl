@@ -1,6 +1,6 @@
 module LBLFactorizations
 
-export bkaufmann, bparlett, rook
+export lbl, lbl_solve, bkaufmann, bparlett, rook, build_matrix, permutation_matrix
 
 include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/bparlett.jl")
@@ -9,8 +9,6 @@ include("LBL_structure.jl")
 
 using LinearAlgebra
 
-
-export lbl
 """
 A LBL^* factorization, also known as a LDL^* bloc-factorization, where the L matrix is UnitLowerTriangular
 and the B matrix is a bloc-diagonal matrix, i.e. each block is 1x1 or 2x2.
@@ -137,7 +135,6 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
     return F
 end
 
-export permutation_matrix
 """
 Utility function that constructs the permutation matrix associated to the a vector of permutation.
 The function is used in the tests/test_assignement.jl file in which we reconstruct the matrix A, i.e A=L*B*L'
@@ -185,7 +182,7 @@ function pivoting(A::AbstractMatrix{T}, strategy::String) where T
     return pivot, pivot_size
 end
 
-export build_matrix
+
 """
 Utility function for tests 
 """

@@ -23,13 +23,16 @@ pkg> add https://github.com/edhhan/LBLFactorizations.jl
 
 # Usage
 
-The only exported functions are `lbl`, `lbl_solve`.
+The exported functions are `lbl`, `lbl_solve`, `bkaufmann`,`bparlett`,`rook`,`build_matrix` and `permutation_matrix`.
 
 
 `lbl` returns a factorization in the form of a LBL object.
 The `lbl_solve` method is implemented for objects of type `LBL` so that
-solving a linear system is as easy as
+solving a linear system can be done as follow:
+
 ```julia
+using LinearAlgebra, LBLFactorizations
+A=Hermitian(rand(Float64, n,n))
 LBLT = lbl(A,strategy)  # LBLᵀ factorization of A with pivoting strategy strategy: "rook", "bkaufmann" or "bparlett"
 
 x = lbl_solve(LBLT, b) # solves Ax = b
