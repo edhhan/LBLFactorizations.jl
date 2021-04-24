@@ -1,13 +1,13 @@
 using LinearAlgebra
 
 """
-Complete pivoting strategy. Provides the pivot according to the bunch-parlett pivoting strategy.
+Complete pivoting strategy in O(n²). Provides the pivot according to the bunch-parlett pivoting strategy.
 A search is done in the subdiagonal part of a matrix A. The pivots on the main diagonal are prioritized.
     
     The chapter 11 in [1] describe the following elements in the strategy:
         -μ_0 : max element in upper triangular with row index p and column index q
         -μ_1 : max diagonal element  with row and column index r
-        -α   :  a parameter derived by minimizing the bound on the element growth.
+        -α   :  a parameter derived by minimizing the bound on the element growth [1]
     
     Input :
         -A : a matrix 
