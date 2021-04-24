@@ -35,6 +35,7 @@ BK=bunchkaufman(Z)
 BK\b
 
 #Test
+test_data9 = Int64[]
 test_data1 = Float64[]
 test_data2 = Float64[]
 test_data3 = Float64[]
@@ -46,7 +47,7 @@ test_data8 = Float64[]
 
 DIM_START=50
 DIM_JUMP=50
-DIM_MAX=500
+DIM_MAX=2000
 
 for n=DIM_START:DIM_JUMP:DIM_MAX
 
@@ -73,6 +74,7 @@ for n=DIM_START:DIM_JUMP:DIM_MAX
 
     t_8 = @elapsed x4=F4\b
     push!(test_data8, t_8)
+    push!(test_data9, n)
 
     println("Erreur1: ",norm(x1-x4)," ", norm(x2-x4)," ", norm(x3-x4))
 
@@ -87,7 +89,7 @@ for n=DIM_START:DIM_JUMP:DIM_MAX
     println("Bunchkaufman from Julia construction: ",t_7)
     println("Bunchkaufman from Julia Solver: ",t_8)
 
-    println("Test ", Int64(n/50), " done")
+    println("Test ", n, " done")
 
 
 end
@@ -96,7 +98,7 @@ end
     println("Everything done")
 
     # Creating DataFrame
-    data_to_CSV = DataFrame(bkaufmann = test_data1, bparlett = test_data2, rook = test_data3, bkaufmannSolved = test_data4, bparlettSolved = test_data5, rookSolved = test_data6, bunchkaufmanJConstructor = test_data7, bunchkaufmanJSolved= test_data8)  
+    data_to_CSV = DataFrame(bkaufmann = test_data1, bparlett = test_data2, rook = test_data3, bkaufmannSolved = test_data4, bparlettSolved = test_data5, rookSolved = test_data6, bunchkaufmanJConstructor = test_data7, bunchkaufmanJSolved= test_data8, dim=test_data9)  
     filename = "LBL_Tests.csv"
 
     # modifying the content of "LBL_Tests.csv" using wite method
@@ -109,6 +111,6 @@ end
     datatograph1=hcat(df[:,1],df[:,2],df[:,3],df[:,7]*200)
     datatograph2=hcat(df[:,4],df[:,5],df[:,6],df[:,8])
     #Rouler lui
-    plot(DIM_START:DIM_JUMP:DIM_MAX,datatograph1, title="Temps de calcul selon la dimension \n (Construction) (bunchkaufman solver*200)", label = ["lbl bkaufmann" "lbl bparlett" "lbl rook" "Bunchkaufman constructor" ] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
+    plot(df[:,9],datatograph1, title="Temps de calcul selon la dimension \n (Construction) (bunchkaufman solver*200)", label = ["lbl bkaufmann" "lbl bparlett" "lbl rook" "Bunchkaufman constructor" ] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
     #Rouler lui après
-    plot(DIM_START:DIM_JUMP:DIM_MAX,datatograph2, title="Temps de calcul selon la dimension ", label = ["lbl bkaufmann solver" "lbl bparlett solver" "lbl rook solver" "Bunchkaufman solver"] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
+    plot(df[:,9],datatograph2, title="Temps de calcul selon la dimension ", label = ["lbl bkaufmann solver" "lbl bparlett solver" "lbl rook solver" "Bunchkaufman solver"] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
