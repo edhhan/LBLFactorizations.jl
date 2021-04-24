@@ -6,38 +6,40 @@ include("LBL_structure.jl")
 using LinearAlgebra
 
 """
-Return the permutation matrice associated with the pivot
-"""
-function permutation_matrix(permutation,n)
-    P = zeros(n,n)
-    for i=1:n
-        P[i,permutation[i]]=1
-    end
+A LBL^* factorization, also known as a LDL^* bloc-factorization, where the L matrix is UnitLowerTriangular
+and the B matrix is a bloc-diagonal matrix, i.e. each block is 1x1 or 2x2.
 
-    return P
-end
-"""
-Wrapper function for pivoting strategy
-"""
-#function pivoting(A::Hermitian{T}, strategy::String) where T
-function pivoting(A::AbstractMatrix{T}, strategy::String) where T
-    if strategy == "rook"
-        pivot, pivot_size = rook(A)
-    elseif strategy == "bparlett"
-        pivot, pivot_size = bparlett(A)
-    elseif strategy == "bkaufmann"
-        pivot, pivot_size = bkaufmann(A)
-    end
+The LBL^* factorization is a generalization of the common LDL^T factorization : it handles hermitian 
+and also indefinite matrices.
 
-    return pivot, pivot_size
-end
+The factorization requires pivoting. Three strategies are proposed:
+    -bparlett : a pivoting strategy with thorough search that is expensive : search in the subdiagonal O(n²)
+                 (see pivot_strategies/bparlett.jl for more details)
+    
+    -bkaufmann : a partial pivoting strategy that is rapid and less precise : search only two columns O(n)
+                 (see pivot_strategies/bkaufmann.jl for more details)
+
+    -rook : a compromise between the two strategies, that has a complexity between O(n) and O(n²) [2]
+
+Each strategy is relevant : it depends on the the structure of the matrix and the user needs.
 
 
+    Input :
+        -A : a hermitian matrix
+        -strategy : a pivoting strategy choose by the user, i.e. strategy ∈ {rook, bparlett, bkaufmann}. 
+                    Default strategy is set as rook (compromise).
 
+    Output :
+        -F : a LBL data structure containing multiple attributes (see LBL_structure.jl for more details)
+
+        
+[1] N. J. Higham, Accuracy and stability of numerical algorithms (Chapter 11). SIAM, 2002.
+
+[2] G. Poole and L. Neal, “The rook’s pivoting strategy,”Journal of Computational and Applied Mathematics,
+    vol. 123, no. 1-2, pp. 353–369, 2000.
 """
-LBL^* Factorization based on 
-"""
-function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T   
+function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook") where T   
+
     if !ishermitian(A)
         return @error("LBL* factorization only works on hermitian matrices")
     end
@@ -51,20 +53,17 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     n = size(A,1)
     hat_n = n
     F = LBL(UnitLowerTriangular(zeros(n,n)), Tridiagonal(zeros(n, n)), strategy)
-    #F = LBL(zeros(n,n), zeros(n, n), strategy)
-    F.permutation=1:n
+    F.permutation = 1:n
     A_prime = Matrix(A) # A_prime cannot be hermitian because of the inplace permutations below
 
-    s = Int64(1)
+    s = 1
     while(s < n)
 
         pivot, pivot_size = pivoting(A_prime, strategy)
         push_pivot!(F, pivot)
 
         if pivot_size != 0
-
             for p in pivot 
-
                 if p != (1,1)
                     
                     # Permutation inplace on lines 
@@ -92,15 +91,16 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
 
         end
 
-        # PAP^T = [E C^* ; C K]
-        B = A_prime[(pivot_size+1):hat_n,(pivot_size+1):hat_n] #B
-        C = A_prime[(pivot_size+1):hat_n,1:pivot_size]         #C
-        E = A_prime[1:pivot_size,1:pivot_size]                 #E
+        # PAP^T = [E C^* 
+        #          C B ]
+        # Matrices below are identified in the PAP^T matrix 
+        B = A_prime[(pivot_size+1):hat_n, (pivot_size+1):hat_n] 
+        C = A_prime[(pivot_size+1):hat_n, 1:pivot_size]         
+        E = A_prime[1:pivot_size, 1:pivot_size]                 
 
         # Schur complement 
-        #A_prime = Hermitian(B - C*inv(E)*C')
-        inv_E=inv(A_prime[1:pivot_size,1:pivot_size])
-        A_prime = (B - C*inv_E*C') #Prend bcp de temps
+        inv_E = inv(A_prime[1:pivot_size,1:pivot_size])
+        A_prime = (B - C*inv_E*C') # NOTE : botte-neck in the FlameGraph
         hat_n = size(A_prime,1)
 
         # Fill factorization columns in L and block-diagonal (1x1 or 2x2) in E
@@ -126,4 +126,51 @@ function lbl(A::Hermitian{T}, strategy::String="bkaufmann") where T
     end
 
     return F
+end
+
+"""
+Utility function that constructs the permutation matrix associated to the a vector of permutation.
+The function is used in the tests/test_assignement.jl file in which we reconstruct the matrix A, i.e A=L*B*L'
+
+    Input :
+        -permutation : a vector of permutation (permutation attribute of the LBL_structure), i.e. LBL.permutation
+        -n : size of the square matrix
+
+    Output :
+        -P : a permutation matrix
+"""
+function permutation_matrix(permutation, n)
+    
+    P = zeros(n,n)
+    for i = 1:n
+        P[i,permutation[i]] = 1
+    end
+
+    return P
+end
+
+
+"""
+Wrapper function pivoting strategy in lbl() : enhances the readability
+
+    Input : 
+        -A : an AbstractMatrix, called A_prime in the lbl() function
+        -strategy : a pivoting strategy, i.e. strategy ∈ {rook, bparlett, bkaufmann}
+                    (see pivot_strategies dir for more info)
+
+    Output :
+        -pivot : a tuple (idx1, idx2) that describes the indices to permute
+        -pivot_size : a size, i.e size ∈ {0, 1, 2}, that enables us to treat different cases in the lbl() function
+"""
+function pivoting(A::AbstractMatrix{T}, strategy::String) where T
+    
+    if strategy == "rook"
+        pivot, pivot_size = rook(A)
+    elseif strategy == "bparlett"
+        pivot, pivot_size = bparlett(A)
+    elseif strategy == "bkaufmann"
+        pivot, pivot_size = bkaufmann(A)
+    end
+
+    return pivot, pivot_size
 end
