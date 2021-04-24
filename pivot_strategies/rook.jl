@@ -2,25 +2,31 @@ using LinearAlgebra
 include("max_subdiagonal.jl")
 include("max_offdiagonal.jl")
 
+
 """
-Rook pivoting strategy. Provides the pivot according to the rook pivoting strategy (Ashcraft, Grimes, and Lewis). Based on:
-    Accuracy and stability of numerical algorithms, Chapter 11, Higham, Nicholas J, 2002, SIAM
-
-    The chapter describe exactly the following elements in the strategy:
-
-    ω_i is the maximimum magnitude of any off-diagonal entry in column r of the previous iteration. Initialized as the maximum magnitude of any subdiagonal entry in column 1.
-
-    r is the row index of the first (subdiagonal) entry of maximum magnitude in column i. 
-
-    ω_r is the maximimum magnitude of any off-diagonal entry in column r.
-
-    α is a parameter derived by minimizing the bound on the element growth.
-
-
-    This function returns pivot_size=0 and pivot=-1 if there is only nonzero elements under the diagonal element in column 1.
-    Otherwise it returns the size of the pivot in pivot_size and the pivot as an array of tuple of the form (k,l) where rows and column k and l have to be swapped. 
+Rook pivoting strategy, i.e O(n) < x <= O(n²). Provides the pivot according to the rook pivoting strategy.
+A search is done the subdiagonal part of matrix A with rook displacements 
+(compromise between bunch-kaufmann and bunch-parllet strategies)
+    
+    The chapter 11 in [1] describe the following elements in the strategy:
+        -ω_i : the maximimum magnitude of any off-diagonal entry in column r of the previous iteration. 
+               Initialized as the maximum magnitude of any subdiagonal entry in column 1.
+        -r : the row index of the first (subdiagonal) entry of maximum magnitude in column i 
+        -ω_r : the maximimum magnitude of any off-diagonal entry in column r 
+        -α : a parameter derived by minimizing the bound on the element growth [1]
+    
+    Input :
+        -A : a matrix 
+    Output :
+        -pivot_size: size of the pivot, i.e size ∈ {0, 1, 2}
+        -pivot : the indices linked to the permutation (pivoting) 
+                -if size==1 then pivot = tuple(idx1,idx2)
+                -if size==2 then pivot = [tuple(idx1,idx2), tuple(idx3,idx4)] 
+                -if size==0 then pivot = -1 (special case where we can factorized more efficiently a column for L)
+     
+Based on :     
+[1] N. J. Higham, Accuracy and stability of numerical algorithms (Chapter 11). SIAM, 2002.
 """
-#function rook(A::Hermitian{T}) where T
 function rook(A::AbstractMatrix{T}) where T
 
     α = (1+sqrt(17))/8

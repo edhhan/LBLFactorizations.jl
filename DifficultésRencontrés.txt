@@ -14,3 +14,9 @@ Effectués:
 - Modification de la décomposition et de la structure pour garder en mémoire les blocs inverse E^-1 qui sont déjà précalculer durant la factorisation dans le complément de schur
 - Modification de la décomposition et de la structure pour retourner au fur et à mesure le vecteur de permutation qui est ensuite utilisé dans le solver.
 - Flame Graph
+
+
+Prochaines étapes:
+
+-Multi-thread l'étape du solving des B inverses
+-

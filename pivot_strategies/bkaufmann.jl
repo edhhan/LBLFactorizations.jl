@@ -2,24 +2,29 @@ using LinearAlgebra
 include("max_subdiagonal.jl")
 
 """
-Partial pivoting strategy. Provides the pivot according to the bunch-kaufmann pivoting strategy. Based on:
-Accuracy and stability of numerical algorithms, Chapter 11, Higham, Nicholas J, 2002, SIAM
+Partial pivoting strategy in O(n). Provides the pivot according to the bunch-kaufmann pivoting strategy.
+A search is done in at most two columns (always the first one).
+    
+    The chapter 11 in [1] describe the following elements in the strategy:
+        -ω_1 : the maximimum magnitude of any subdiagonal entry in column 1
+        -r   : the row index of ω_1
+        -ω_r : the maximimum magnitude of any off-diagonal entry in column r
+        -α : a parameter derived by minimizing the bound on the element growth [1]
 
-The chapter describe the following elements in the strategy:
-
-ω_1 is the maximimum magnitude of any subdiagonal entry in column 1
-
-r is the row index of ω_1
-ω_r is the maximimum magnitude of any off-diagonal entry in column r
-
-α is a parameter derived by minimizing the bound on the element growth.
-
-This function returns pivot_size=0 and pivot=-1 if there is only nonzero elements under the diagonal element in column 1.
-Otherwise it returns the size of the pivot in pivot_size and the pivot as an array of tuple of the form (k,l) where rows and column k and l have to be swapped. 
+    Input :
+        -A : a matrix 
+    Output :
+        -pivot_size: size of the pivot, i.e size ∈ {0, 1, 2}
+        -pivot : the indices linked to the permutation (pivoting) 
+                -if size==1 then pivot = tuple(idx1,idx2)
+                -if size==2 then pivot = [tuple(idx1,idx2), tuple(idx3,idx4)] 
+                -if size==0 then pivot = -1 (special case where we can factorized more efficiently a column for L)
+     
+Based on :     
+[1] N. J. Higham, Accuracy and stability of numerical algorithms (Chapter 11). SIAM, 2002.
 """
-#function bkaufmann(A::Hermitian{T}) where T
 function bkaufmann(A::AbstractMatrix{T}) where T
-    α = (1+sqrt(17))/8
+    α = (1+sqrt(17))/8  # from [1]
     n = size(A,1)
     pivot = []
     pivot_size = 0
@@ -62,7 +67,6 @@ function bkaufmann(A::AbstractMatrix{T}) where T
             push!(pivot, (2,r))
         end
     end
-
 
     return pivot, pivot_size
 end

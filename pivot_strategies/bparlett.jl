@@ -1,19 +1,28 @@
 using LinearAlgebra
 
 """
-Complete pivoting strategy. Provides the pivot according to the bunch-parlett pivoting strategy. Based on:
-    Accuracy and stability of numerical algorithms, Chapter 11, Higham, Nicholas J, 2002, SIAM
+Complete pivoting strategy in O(n²). Provides the pivot according to the bunch-parlett pivoting strategy.
+A search is done in the subdiagonal part of a matrix A. The pivots on the main diagonal are prioritized.
     
-    The chapter describe the following elements in the strategy:
+    The chapter 11 in [1] describe the following elements in the strategy:
+        -μ_0 : max element in upper triangular with row index p and column index q
+        -μ_1 : max diagonal element  with row and column index r
+        -α   :  a parameter derived by minimizing the bound on the element growth [1]
     
-    μ_0 : max element in upper triangular with row index p and column index q
-    μ_1 : max diagonal element  with row and column index r
+    Input :
+        -A : a matrix 
+    Output :
+        -pivot_size: size of the pivot, i.e size ∈ {1, 2}
+        -pivot : the indices linked to the permutation (pivoting) 
+                -if size==1 then pivot = tuple(idx1,idx2)
+                -if size==2 then pivot = [tuple(idx1,idx2), tuple(idx3,idx4)] 
 
-    α is a parameter derived by minimizing the bound on the element growth.
-    
+
     This function returns the size of the pivot in pivot_size and the pivot as an array of tuple of the form (k,l) where rows and column k and l have to be swapped. 
+        
+Based on :     
+[1] N. J. Higham, Accuracy and stability of numerical algorithms (Chapter 11). SIAM, 2002.
 """
-#function bparlett(A::Hermitian{T}) where T
 function bparlett(A::AbstractMatrix{T}) where T
     α = (1+sqrt(17))/8
     n = size(A,1)
