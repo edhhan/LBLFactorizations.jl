@@ -26,13 +26,13 @@ Each strategy is relevant : it depends on the the structure of the matrix and th
 
     Input :
         -A : a hermitian matrix
-        -strategy : a pivoting strategy choose by the user, i.e. strategy ∈ {rook, bparlett, bkaufmann}. 
+        -strategy : a pivoting strategy chosen by the user, i.e. strategy ∈ {rook, bparlett, bkaufmann}. 
                     Default strategy is set as rook (compromise).
 
     Output :
         -F : a LBL data structure containing multiple attributes (see LBL_structure.jl for more details)
 
-        
+
 [1] N. J. Higham, Accuracy and stability of numerical algorithms (Chapter 11). SIAM, 2002.
 
 [2] G. Poole and L. Neal, “The rook’s pivoting strategy,”Journal of Computational and Applied Mathematics,
