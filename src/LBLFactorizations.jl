@@ -1,6 +1,6 @@
 module LBLFactorizations
 
-export bkaufmann
+export bkaufmann, bparlett, rook
 
 include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/bparlett.jl")
