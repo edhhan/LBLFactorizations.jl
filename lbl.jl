@@ -52,7 +52,8 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
     # Initialization
     n = size(A,1)
     hat_n = n
-    F = LBL(UnitLowerTriangular(zeros(n,n)), Tridiagonal(zeros(n, n)), strategy)
+    Zeros=zeros(n, n)
+    F = LBL(UnitLowerTriangular(Zeros), Tridiagonal(Zeros), strategy)
     F.permutation = 1:n
     A_prime = Matrix(A) # A_prime cannot be hermitian because of the inplace permutations below
 
@@ -65,7 +66,36 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
         if pivot_size != 0
             for p in pivot 
                 if p != (1,1)
-                    
+
+                    #À régler pour faire permutation sur une matrice hermitienne A_prime
+                    #Position 1 et 2 à permuter
+                    #=
+                    p1=p[1]
+                    p2=p[2]
+                    print(p1,p2,"\n")
+
+                                temp=A_prime.data[p1,p1+1:p2-1]
+                                A_prime.data[p1,p1+1:p2-1]=A_prime.data[p1+1:p2-1,p2]'
+                                A_prime.data[p1+1:p2-1,p2]=temp'
+                            
+                                A_prime.data[p1,p2]=A_prime.data[p1,p2]'
+                            
+                                temp=A_prime.data[p1,p2+1:end]
+                                A_prime.data[p1,p2+1:end]=A_prime.data[p2,p2+1:end]
+                                A_prime.data[p2,p2+1:end]=temp
+                            
+                                temp=A_prime.data[1:p1-1,p1]
+                                A_prime.data[1:p1-1,p1]=A_prime.data[1:p1-1,p2]
+                                A_prime.data[1:p1-1,p2]=temp   
+                            
+                            
+                                temp=A_prime.data[p1,p1]
+                                A_prime.data[p1,p1]=A_prime.data[p2,p2]
+                                A_prime.data[p2,p2]=temp
+                    =#
+
+
+
                     # Permutation inplace on lines 
                     temp = A_prime[p[1], :]
                     A_prime[p[1], :] = A_prime[p[2], :]
@@ -75,6 +105,8 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
                     temp = A_prime[:, p[1]]
                     A_prime[:, p[1]] = A_prime[:,p[2]]
                     A_prime[:, p[2]] = temp
+
+
 
                     # Permutation of UnitLowerTriangular matrix L
                     temp = F.L[s+p[1]-1, 1:s+p[1]-2]
@@ -100,7 +132,7 @@ function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook")
 
         # Schur complement 
         inv_E = inv(A_prime[1:pivot_size,1:pivot_size])
-        A_prime = (B - C*inv_E*C') # NOTE : botte-neck in the FlameGraph
+        A_prime = B - C*inv_E*C' # NOTE : botte-neck in the FlameGraph
         hat_n = size(A_prime,1)
 
         # Fill factorization columns in L and block-diagonal (1x1 or 2x2) in E

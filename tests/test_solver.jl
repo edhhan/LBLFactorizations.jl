@@ -8,22 +8,16 @@ using Plots
 include("../lbl.jl")
 include("../lbl_solve.jl")
 
+#=The testing loop below gets the time required to the lbl factorization for:
+- Factorizing A with the bunch-kaufmann strategy from lbl
+- Factorizing A with the bunch-parlett strategy from lbl
+- Factorizing A with the rook strategy from lbl
+- Factorizing A with the bunchkaufman function from LinearAlgebra
 
-n=1000 #Choisir dimension du probleme, MAX 2000, trop de memoire requise WORK IN PROGRESS
-
-     
-#=
-    A = Hermitian(rand(Float64, n,n).*100)
-    Z = Hermitian(rand(Float64, n,n).*100)
-
-    @profview lbl(A, "rook")
-    #ProfileSVG.@profview lbl(A, "rook")
-=#
-#=
-    A = Hermitian(rand(Float64, n,n).*100)
-    F=lbl(A, "rook")
-    b=rand(n).*100
-    ProfileSVG.@profview lbl_solve(F, b)
+- Solving Ax=b with the factored A via the bunch-kaufmann strategy from lbl and with solver from lbl
+- Solving Ax=b with the factored A via the bunch-parlett strategy from lbl and with solver from lbl
+- Solving Ax=b with the factored A via the rook strategy from lbl and with solver from lbl
+- Solving Ax=b with the factored A via the bunchkaufman function from LinearAlgebra and its solver
 =#
 
 #WARMUP
@@ -34,7 +28,7 @@ lbl_solve(F, b)
 BK=bunchkaufman(Z)
 BK\b
 
-#Test
+#Test data, to create CSV down below
 test_data9 = Int64[]
 test_data1 = Float64[]
 test_data2 = Float64[]
@@ -45,15 +39,19 @@ test_data6 = Float64[]
 test_data7 = Float64[]
 test_data8 = Float64[]
 
+#Sampling options
+#DIM_JUMP is the period of the Sampling
+#DIM_MAX is the maximum possible dimension of the considered problems. As of now, it shouldn't be greater than 2000 because lbl takes too much time to factorize it (may freeze computer)
+#DIM_START is the starting dimension
 DIM_START=50
 DIM_JUMP=50
 DIM_MAX=2000
-
 for n=DIM_START:DIM_JUMP:DIM_MAX
 
     A = Hermitian(rand(Float64, n,n).*100)
     b=rand(n).*100
 
+    
     t_1 = @elapsed F1=lbl(A, "bkaufmann")
     push!(test_data1, t_1)
     t_2 = @elapsed F2=lbl(A, "bparlett")
@@ -98,19 +96,21 @@ end
     println("Everything done")
 
     # Creating DataFrame
-    data_to_CSV = DataFrame(bkaufmann = test_data1, bparlett = test_data2, rook = test_data3, bkaufmannSolved = test_data4, bparlettSolved = test_data5, rookSolved = test_data6, bunchkaufmanJConstructor = test_data7, bunchkaufmanJSolved= test_data8, dim=test_data9)  
+    data_to_CSV = DataFrame(bkaufmann = test_data1, bparlett = test_data2, rook = test_data3, bkaufmannSolved = test_data4, bparlettSolved = test_data5, rookSolved = test_data6, bunchkaufmanJConstructor = test_data7, bunchkaufmanJSolved= test_data8, dim=test_data9) 
+    # Name of the file to export to 
     filename = "LBL_Tests.csv"
 
-    # modifying the content of "LBL_Tests.csv" using wite method
+    # Writing the data in CSV format
     CSV.write(filename, data_to_CSV)
 
-
+    # Collecting the data in CSV format, should be in the same directory
     datatest=CSV.File("LBL_Tests.csv")
     df = DataFrame(datatest)
 
+    # Concatenate the data to plot
     datatograph1=hcat(df[:,1],df[:,2],df[:,3],df[:,7]*200)
     datatograph2=hcat(df[:,4],df[:,5],df[:,6],df[:,8])
-    #Rouler lui
+    #First graph showing the calculation time required to construct the LBLT factorization with the different methods according to the dimension of the problem considered
     plot(df[:,9],datatograph1, title="Temps de calcul selon la dimension \n (Construction) (bunchkaufman solver*200)", label = ["lbl bkaufmann" "lbl bparlett" "lbl rook" "Bunchkaufman constructor" ] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
-    #Rouler lui après
+    #Second graph showing the calculation time required to solve Ax=b using the previously constructed LBLT factorization according to the dimension of the problem considered
     plot(df[:,9],datatograph2, title="Temps de calcul selon la dimension ", label = ["lbl bkaufmann solver" "lbl bparlett solver" "lbl rook solver" "Bunchkaufman solver"] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)

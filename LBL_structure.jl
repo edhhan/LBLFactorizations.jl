@@ -32,22 +32,22 @@ end
 """
 Constructor by parameters that initializes the empty arrays for B_inv, pivot_array and permutation
 """
-function LBL(L::UnitLowerTriangular{T}, B::Tridiagonal{T}; strategy::String="rook", B_inv::Array{Any,1}=Any[],
-                                     pivot_array::Array{Any,1} = Any[], permutation::Array{Int64,1}= Int64[]) where T   
+function LBL(L::UnitLowerTriangular{T}, B::Tridiagonal{T}, strategy::String="rook", B_inv::Array{Any,1}=Any[],
+                                     pivot_array::Array{Any,1} = Any[], permutation::Array{Int64,1}=Int64[]) where T   
     return LBL{T}(L, B, strategy, B_inv, pivot_array, permutation)
 end
 
 """
 Overload of the push function for the array-attribute pivot_array
 """
-function push_pivot!(A::LBL{T}, pivot::Union{Array{Any,1}, Array{Tuple{Int64, Int64}, 1}, Int64} ) where T
+function push_pivot!(A::LBL{T}, pivot::Union{Array{Any,1}, Array{Tuple{Int64, Int64}, 1}, Int64}) where T
     push!(A.pivot_array, pivot)
 end
 
 """
 Overload of the push function for the array-attribute push_B_inv
 """
-function push_B_inv!(A::LBL{T}, inv_E::Tuple{Any,Int64}) where T
+function push_B_inv!(A::LBL{T}, inv_E::Any) where T
     push!(A.B_inv, inv_E)
 end
 

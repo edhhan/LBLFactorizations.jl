@@ -12,9 +12,9 @@ include("../lbl.jl")
     for strategy in ["bparlett", "bkaufmann", "rook"]
 
         for _ = 1:5
-            for n = 4:100
+            for n = 4:100 #100
                              
-                A = Hermitian(rand(Float64, n,n).*100)
+                A = Hermitian(rand(Float64, n,n).*100, :U)
                 F = lbl(A, strategy)
                 F_build = build_matrix(F)
 

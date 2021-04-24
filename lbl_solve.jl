@@ -28,7 +28,7 @@ function lbl_solve(LBL::AbstractLBL, b::AbstractVector)
     # 1) Triangular Descent
     z = LBL.L \ b 
 
-    # 2) Independant bloc diagonal : possibility to be parallelize
+    # 2) Independant bloc diagonal : possibility to be parallelized
     y = solve_block_diagonal!(LBL.B_inv,z) #LBL.B \ z 
 
     # 3) Triangular Hike
