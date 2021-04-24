@@ -2,6 +2,7 @@
 
 # LBL: Bloc Diagonal Factorization for Hermitian Matrices
 
+IMPORTANT: This package isn't efficient compared to bunchkaufman() and was done for academic purpose only. Use bunchkaufman() from LinearAlgebra for optimal results.
 
 An implementation of Bloc diagonal factorization
 
