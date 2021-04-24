@@ -1,5 +1,6 @@
 using LinearAlgebra
 
+export bparlett
 """
 Complete pivoting strategy in O(n²). Provides the pivot according to the bunch-parlett pivoting strategy.
 A search is done in the subdiagonal part of a matrix A. The pivots on the main diagonal are prioritized.

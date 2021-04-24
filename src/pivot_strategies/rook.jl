@@ -2,7 +2,7 @@ using LinearAlgebra
 include("max_subdiagonal.jl")
 include("max_offdiagonal.jl")
 
-
+export rook
 """
 Rook pivoting strategy, i.e O(n) < x <= O(n²). Provides the pivot according to the rook pivoting strategy.
 A search is done the subdiagonal part of matrix A with rook displacements 

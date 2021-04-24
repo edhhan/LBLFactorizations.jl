@@ -1,11 +1,14 @@
 module LBLFactorizations
 
+export bkaufmann
+
 include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/bparlett.jl")
 include("pivot_strategies/rook.jl")
 include("LBL_structure.jl")
 
 using LinearAlgebra
+
 
 export lbl
 """
