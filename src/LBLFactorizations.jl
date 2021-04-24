@@ -7,6 +7,7 @@ include("LBL_structure.jl")
 
 using LinearAlgebra
 
+export lbl
 """
 A LBL^* factorization, also known as a LDL^* bloc-factorization, where the L matrix is UnitLowerTriangular
 and the B matrix is a bloc-diagonal matrix, i.e. each block is 1x1 or 2x2.
@@ -40,7 +41,6 @@ Each strategy is relevant : it depends on the the structure of the matrix and th
 [2] G. Poole and L. Neal, “The rook’s pivoting strategy,”Journal of Computational and Applied Mathematics,
     vol. 123, no. 1-2, pp. 353–369, 2000.
 """
-export lbl
 function lbl(A::Union{Hermitian{T}, AbstractMatrix{T}}, strategy::String="rook") where T   
 
     if !ishermitian(A)
