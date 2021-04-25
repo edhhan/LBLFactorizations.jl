@@ -3,10 +3,9 @@ using ProfileSVG
 #using CSV
 #using DataFrames
 using Plots
+using LBLFactorizations
 #using ProfileView
 
-include("../lbl.jl")
-include("../lbl_solve.jl")
 
 #=The testing loop below gets the time required to the lbl factorization for:
 - Factorizing A with the bunch-kaufmann strategy from lbl
@@ -20,6 +19,7 @@ include("../lbl_solve.jl")
 - Solving Ax=b with the factored A via the bunchkaufman function from LinearAlgebra and its solver
 =#
 
+#=
 #WARMUP
 Z = Hermitian(rand(Float64, 2,2).*100)
 b=rand(2).*100
@@ -91,10 +91,12 @@ for n=DIM_START:DIM_JUMP:DIM_MAX
 
 
 end
+println("Everything done")
+=#
 #Uncomment to export to CSV and plot graphs
-#=
-    println("Everything done")
 
+
+#=
     # Creating DataFrame
     data_to_CSV = DataFrame(bkaufmann = test_data1, bparlett = test_data2, rook = test_data3, bkaufmannSolved = test_data4, bparlettSolved = test_data5, rookSolved = test_data6, bunchkaufmanJConstructor = test_data7, bunchkaufmanJSolved= test_data8, dim=test_data9) 
     # Name of the file to export to 
@@ -102,7 +104,7 @@ end
 
     # Writing the data in CSV format
     CSV.write(filename, data_to_CSV)
-
+=#
     # Collecting the data in CSV format, should be in the same directory
     datatest=CSV.File("LBL_Tests.csv")
     df = DataFrame(datatest)
@@ -111,7 +113,6 @@ end
     datatograph1=hcat(df[:,1],df[:,2],df[:,3],df[:,7]*200)
     datatograph2=hcat(df[:,4],df[:,5],df[:,6],df[:,8])
     #First graph showing the calculation time required to construct the LBLT factorization with the different methods according to the dimension of the problem considered
-    plot(df[:,9],datatograph1, title="Temps de calcul selon la dimension \n (Construction) (bunchkaufman solver*200)", label = ["lbl bkaufmann" "lbl bparlett" "lbl rook" "Bunchkaufman constructor" ] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
+    plot(df[:,9],datatograph1, label = ["lbl bkaufmann" "lbl bparlett" "lbl rook" "bunchkaufman*200)" ] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft) #title="Temps de calcul selon la dimension \n (Factorisation)"
     #Second graph showing the calculation time required to solve Ax=b using the previously constructed LBLT factorization according to the dimension of the problem considered
-    plot(df[:,9],datatograph2, title="Temps de calcul selon la dimension ", label = ["lbl bkaufmann solver" "lbl bparlett solver" "lbl rook solver" "Bunchkaufman solver"] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft)
-=#
+    plot(df[:,9],datatograph2, label = ["lbl bkaufmann solver" "lbl bparlett solver" "lbl rook solver" "Bunchkaufman solver"] , ylabel="Temps(s)",xlabel="Dimension", legend=:topleft) #, title="Temps de calcul selon la dimension \n (Résolution)"
