@@ -1,6 +1,16 @@
 module LBLFactorizations
 
-export lbl, lbl_solve, bkaufmann, bparlett, rook, build_matrix, permutation_matrix
+export 
+    #Types
+    LBL
+    #Functions
+    lbl,
+    lbl_solve,
+    bkaufmann,
+    bparlett,
+    rook,
+    build_matrix,
+    permutation_matrix
 
 include("pivot_strategies/bkaufmann.jl")
 include("pivot_strategies/bparlett.jl")
