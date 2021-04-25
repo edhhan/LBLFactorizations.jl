@@ -1,7 +1,7 @@
 using LinearAlgebra
 include("max_subdiagonal.jl")
 
-export bkaufmann
+
 """
 Partial pivoting strategy in O(n). Provides the pivot according to the bunch-kaufmann pivoting strategy.
 A search is done in at most two columns (always the first one).
