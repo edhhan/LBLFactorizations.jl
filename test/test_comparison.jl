@@ -1,8 +1,5 @@
 #Comparing LDLT bkaufmann with Julia bunchkaufmann
-include("../pivot_strategies/bparlett.jl")
-include("../pivot_strategies/bkaufmann.jl")
-include("../pivot_strategies/rook.jl")
-include("../lbl.jl")
+using LBLFactorizations
 using LinearAlgebra
 using Test
 

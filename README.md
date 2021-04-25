@@ -3,6 +3,7 @@
 # LBL: Bloc Diagonal Factorization for Hermitian Matrices
 
 IMPORTANT: This package isn't efficient compared to bunchkaufman() and was done for academic purpose only. Use bunchkaufman() from LinearAlgebra for optimal results.
+IMPORTANT: This package is compatible with Julia v1.5.2 and higher
 
 An implementation of Bloc diagonal factorization
 
