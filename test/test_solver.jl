@@ -1,10 +1,10 @@
 using LinearAlgebra
 using ProfileSVG
-#using CSV
-#using DataFrames
+using CSV
+using DataFrames
 using Plots
 using LBLFactorizations
-#using ProfileView
+using ProfileView
 
 
 #=The testing loop below gets the time required to the lbl factorization for:

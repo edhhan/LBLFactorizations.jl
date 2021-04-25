@@ -1,8 +1,4 @@
-include("../pivot_strategies/bparlett.jl")
-include("../pivot_strategies/bkaufmann.jl")
-include("../pivot_strategies/rook.jl")
-
-
+using LBLFactorizations
 using LinearAlgebra
 using Test
 
