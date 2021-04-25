@@ -18,7 +18,7 @@ using ProfileView
 - Solving Ax=b with the factored A via the bunchkaufman function from LinearAlgebra and its solver
 =#
 
-#=
+
 #WARMUP
 Z = Hermitian(rand(Float64, 2,2).*100)
 b=rand(2).*100
@@ -91,10 +91,8 @@ for n=DIM_START:DIM_JUMP:DIM_MAX
 
 end
 println("Everything done")
-=#
+
 #Uncomment to export to CSV and plot graphs
-
-
 #=
     # Creating DataFrame
     data_to_CSV = DataFrame(bkaufmann = test_data1, bparlett = test_data2, rook = test_data3, bkaufmannSolved = test_data4, bparlettSolved = test_data5, rookSolved = test_data6, bunchkaufmanJConstructor = test_data7, bunchkaufmanJSolved= test_data8, dim=test_data9) 

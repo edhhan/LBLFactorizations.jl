@@ -40,7 +40,15 @@ x = lbl_solve(LBLT, b) # solves Ax = b
 ```
 
 Factors can be accessed as `LBLT.L`, `LBLT.B`, and the permutation vector as `LBLT.permutation`.
-L factor is unit lower triangular and the block diagonal matrix B is tridiagonal and contains independant submatrix 2x2 and 1x1.
+L factor is unit lower triangular and the block diagonal matrix B is tridiagonal and contains independant submatrices 2x2 and 1x1.
+
+Examples, benchmark and tests can be found in tests examples:
+
+1. test_profile can be used to produce flamegraph of the solver and the factorization
+2. test_solver provides a benchmark to produce graphs and data concerning the performance in time of lbl(), lbl_solve() vs bunchkaufman().
+3. test_random applies lbl() on hermitian matrix A and compare the reconstruction of LBL with PAP'.
+4. tests_pivots does unitary tests on matrices to be sure that the strategies bkaufmann(), bparlett() and rook() give the right pivots.
+5. analyse.py is a python scripts that analyze the CSV returned by test_solver in order to get the complexity of the factorizations.
 
 # References
 
