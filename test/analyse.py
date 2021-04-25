@@ -20,10 +20,7 @@ os.chdir(analysis_path)
 bk_fact_arr = []
 bp_fact_arr = []
 rk_fact_arr = []
-
-bk_solver_arr = []
-bp_solver_arr = []
-rk_solver_arr = []
+bkJ_fact_arr = []
 
 dim_arr = []
 
@@ -37,11 +34,7 @@ with open('data_analysis.csv') as csv_file:
             bk_fact_idx = row.index("bkaufmann")
             bp_fact_idx = row.index("bparlett")
             rk_fact_idx = row.index("rook")
-
-            # Solver indices
-            bk_solver_idx = row.index("bkaufmann")
-            bp_solver_idx = row.index("bparlett")
-            rk_solver_idx = row.index("rook")
+            bkJ_fact_idx = row.index("bunchkaufmanJConstructor")
 
             # Dimension
             dim_idx = row.index("dim")
@@ -51,11 +44,8 @@ with open('data_analysis.csv') as csv_file:
             bk_fact_arr.append(row[bk_fact_idx])
             bp_fact_arr.append(row[bp_fact_idx])
             rk_fact_arr.append(row[rk_fact_idx])
+            bkJ_fact_arr.append(row[bkJ_fact_idx])
 
-            bk_solver_arr.append(row[bk_fact_idx])
-            bp_solver_arr.append(row[bp_solver_idx])
-            rk_solver_arr.append(row[rk_solver_idx])
-            
             dim_arr.append(row[dim_idx])
 
             line_count += 1
@@ -64,12 +54,9 @@ with open('data_analysis.csv') as csv_file:
 
 
 bk_fact_arr = np.array(bk_fact_arr, dtype=np.float64).reshape(-1, 1)
+bkJ_fact_arr = np.array(bkJ_fact_arr, dtype=np.float64).reshape(-1, 1)
 bp_fact_arr = np.array(bp_fact_arr, dtype=np.float64).reshape(-1, 1)
 rk_fact_arr = np.array(rk_fact_arr, dtype=np.float64).reshape(-1, 1)
-
-bk_solver_arr = np.array(bk_solver_arr, dtype=np.float64).reshape(-1, 1)
-bp_solver_arr = np.array(bp_solver_arr, dtype=np.float64).reshape(-1, 1)
-rk_solver_arr = np.array(rk_solver_arr, dtype=np.float64).reshape(-1, 1)
 
 dim_arr = np.array(dim_arr, dtype=np.int64).reshape(-1, 1)
 
@@ -112,8 +99,9 @@ plt.show()
 
 # Compute complexity quantities
 bk_exposant = round(float(bk_slope_log),3)
-bk_constante = round(2**float(bk_intercept_log),3)
+bk_constante = round(2**float(bk_intercept_log),10)
 print("Bkaufmann polynomial complexity degree : {}".format(bk_exposant))
+print("Bkaufmann hidden constant: {}".format(bk_constante))
 
 
 
@@ -141,8 +129,9 @@ plt.show()
 
 # Compute complexity quantities
 bp_exposant = round(float(bp_slope_log),3)
-bp_constante = round(2**float(bp_intercept_log),3)
+bp_constante = round(2**float(bp_intercept_log),10)
 print("Bparlett polynomial complexity degree : {}".format(bp_exposant))
+print("Bparlett hidden constant : {}".format(bp_constante))
 
 
 
@@ -170,5 +159,36 @@ plt.show()
 
 # Compute complexity quantities
 rk_exposant = round(float(rk_slope_log),3)
-rk_constante = round(2**float(rk_intercept_log),3)
+rk_constante = round(2**float(rk_intercept_log),10)
 print("Rook polynomial complexity degree : {}".format(rk_exposant))
+print("Rook hidden constant : {}".format(rk_constante))
+
+
+
+
+# 4) Power-test : bkJ
+bkJ_log = np.log2(bkJ_fact_arr)
+
+# Linear regression
+bkJ_model_log = LinearRegression()
+bkJ_model_log.fit(x_log, bkJ_log)
+
+# Parameters
+bkJ_slope_log = float(bkJ_model_log.coef_)
+bkJ_intercept_log = float(bkJ_model_log.intercept_)
+
+# Print
+fig, ax = plt.subplots()
+plt.scatter(x_log, bkJ_log, label="Data")
+plt.plot(x_log, bkJ_slope_log*x_log + bkJ_intercept_log, label="Regression $log_2(y)=mlog_2(x)+b$", color='r')
+ax.set_xlabel("Dimension $[log_2(n)]$", fontsize=14)
+ax.set_ylabel("Temps $[log_2(s)]$", fontsize=14)
+#plt.title("Log-Log regression for the factorization time with the bunch-kaufmann strategy")
+plt.legend()
+plt.show()
+
+# Compute complexity quantities
+bkJ_exposant = round(float(bkJ_slope_log),3)
+bkJ_constante = round(2**float(bkJ_intercept_log),10)
+print("Bkaufmann Julia polynomial complexity degree : {}".format(bkJ_exposant))
+print("Bkaufmann Julia polynomial hidden constant : {}".format(bkJ_constante))
