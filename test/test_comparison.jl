@@ -11,7 +11,7 @@ using Test
 @testset begin
 
         for _ = 1:5
-            for n = 4:10
+            for n = 4:100
                              
                 A = Hermitian(rand(Float64, n,n).*100, :L)
                 F = lbl(A, "bkaufmann")

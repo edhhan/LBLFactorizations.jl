@@ -1,9 +1,9 @@
 using LinearAlgebra
 using ProfileSVG
-#using CSV
-#using DataFrames
+using CSV
+using DataFrames
 using Plots
-#using ProfileView
+using ProfileView
 
 include("../lbl.jl")
 include("../lbl_solve.jl")
