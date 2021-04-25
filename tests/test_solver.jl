@@ -1,7 +1,7 @@
 using LinearAlgebra
 using ProfileSVG
-using CSV
-using DataFrames
+#using CSV
+#using DataFrames
 using Plots
 #using ProfileView
 
@@ -45,7 +45,7 @@ test_data8 = Float64[]
 #DIM_START is the starting dimension
 DIM_START=50
 DIM_JUMP=50
-DIM_MAX=1000
+DIM_MAX=100
 for n=DIM_START:DIM_JUMP:DIM_MAX
 
     A = Hermitian(rand(Float64, n,n).*100)

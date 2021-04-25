@@ -23,10 +23,11 @@ Solver for a (LBL^*)x = b system using a LBL data structure where a LBL^* factor
 """
 function lbl_solve(LBL::AbstractLBL, b::AbstractVector)
 
-    b = b[LBL.permutation] 
+    #b = b[LBL.permutation] 
+
 
     # 1) Triangular Descent
-    z = LBL.L \ b 
+    z = LBL.L \ b[LBL.permutation]  
 
     # 2) Independant bloc diagonal : possibility to be parallelized
     y = solve_block_diagonal!(LBL.B_inv,z) #LBL.B \ z 
