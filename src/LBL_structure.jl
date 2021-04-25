@@ -51,9 +51,3 @@ function push_B_inv!(A::LBL{T}, inv_E::Any) where T
     push!(A.B_inv, inv_E)
 end
 
-"""
-Utility function for tests 
-"""
-function build_matrix(A::LBL{T}) where T
-    return A.L * A.B * A.L'
-end

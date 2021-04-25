@@ -1,0 +1,10 @@
+name = "LBLFactorizations"
+uuid = "e99e7783-d460-4413-aa03-de538d38ba08"
+authors = ["Mathieu Gervais-Dubé, <58898185+Kardore1@users.noreply.github.com>, Edward Hallé-Hannan, edhhan@github"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
+[compat]
+julia = "1.5.2"

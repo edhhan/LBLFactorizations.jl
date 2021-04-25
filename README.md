@@ -1,4 +1,4 @@
-# julia-factorization-bunch-kaufman
+# LBLFactorizations.jl
 
 # LBL: Bloc Diagonal Factorization for Hermitian Matrices
 
@@ -6,30 +6,33 @@ IMPORTANT: This package isn't efficient compared to bunchkaufman() and was done 
 
 An implementation of Bloc diagonal factorization
 
-Please cite this repository if you use lbl.jl in your work
+Please cite this repository if you use LBLFactorizations.jl in your work
 
 This package is appropriate for indefinite hermitian matrix A where we want a factorization of the form PAP*=LBL*.
 
-lbl.jl should not be expected to be as fast as bunchkaufman.jl which uses LAPACK.
+LBLFactorizations.jl should not be expected to be as fast as bunchkaufman.jl which uses LAPACK.
 
-The main advantages of lbl.jl are that it is implemented in Julia so it does not require external compiled dependencies and it can work with all the julia data types.
+The main advantages of LBLFactorizations.jl are that it is implemented in Julia so it does not require external compiled dependencies and it can work with all the julia data types.
 
 # Installing
 
 ```julia
 julia> ]
-pkg> add lbl
+pkg> add https://github.com/edhhan/LBLFactorizations.jl
 ```
 
 # Usage
 
-The only exported functions are `lbl`, `lbl_solve`.
+The exported functions are `lbl`, `lbl_solve`, `bkaufmann`,`bparlett`,`rook`,`build_matrix` and `permutation_matrix`.
 
 
 `lbl` returns a factorization in the form of a LBL object.
 The `lbl_solve` method is implemented for objects of type `LBL` so that
-solving a linear system is as easy as
+solving a linear system can be done as follow:
+
 ```julia
+using LinearAlgebra, LBLFactorizations
+A=Hermitian(rand(Float64, n,n))
 LBLT = lbl(A,strategy)  # LBLᵀ factorization of A with pivoting strategy strategy: "rook", "bkaufmann" or "bparlett"
 
 x = lbl_solve(LBLT, b) # solves Ax = b
