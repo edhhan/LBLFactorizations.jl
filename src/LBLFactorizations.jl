@@ -2,7 +2,7 @@ module LBLFactorizations
 
 export 
     #Types
-    LBL
+    LBL,
     #Functions
     lbl,
     lbl_solve,
